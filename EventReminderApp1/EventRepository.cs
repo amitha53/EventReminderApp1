@@ -24,27 +24,71 @@ namespace EventReminderApp1
             cmd.Parameters.AddWithValue("@Password", register.Password);
             cmd.ExecuteNonQuery();
         }
-        public void UserLogin(Registration Login)
+        public List<string> LoginDetails(Registration login)
         {
+            List<string> variables = new List<string>();
+            con.Open();
+            string query = "Select UserID,EmailId,Password From tblRegister Where EmailId=@EmailId and Password=@Password";
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.AddWithValue("@EmailId", login.Email);
+            cmd.Parameters.AddWithValue("@Password", login.Password);
+
+            SqlDataAdapter sda = new SqlDataAdapter(cmd);
+            DataTable datatable = new DataTable();
+            sda.Fill(datatable);
+
+            if (datatable.Rows.Count == 1)
+            {
+                DataRow row = datatable.Rows[0];
+                string userid = row["UserID"].ToString();
+                string mail = row["EmailId"].ToString();
+                variables.Add(userid);
+                variables.Add(mail);
+            }
+            con.Close();
+            return variables;
 
         }
 
-        public void AddEditEvent(Events events, string userid)
+        public List<string> GoogleLoginDetails(string query)
+        {
+            List<string> variables = new List<string>();
+            con.Open();
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.CommandType = CommandType.Text;
+
+            SqlDataAdapter sda = new SqlDataAdapter(cmd);
+            DataTable datatable = new DataTable();
+            sda.Fill(datatable);
+
+            if (datatable.Rows.Count == 1)
+            {
+                DataRow row = datatable.Rows[0];
+                string userid = row["UserID"].ToString();
+                string mail = row["EmailId"].ToString();
+                variables.Add(userid);
+                variables.Add(mail);
+            }
+            con.Close();
+            return variables;
+
+        }
+
+        public void AddEvent(Events events, string userid)
         {
             string qry = string.Empty;
             var startdate = Convert.ToDateTime(events.StartDate);
             var enddate = Convert.ToDateTime(events.EndDate);
-            if (events.EventID > 0)
-            {
-                qry = "Update tblEvents set Subject = '" + events.Subject + "', Description = '" + events.Description +
-                       "', StartDate= '" + events.StartDate + "',EndDate= '" + events.EndDate + "' where EventID= '" + events.EventID + "' and UserID= " + userid;
-            }
-            else
-            {
-
-                qry = "insert into tblEvents(UserID,Subject,Description,StartDate,EndDate)" +
+            qry = "insert into tblEvents(UserID,Subject,Description,StartDate,EndDate)" +
                     " values('" + userid + "','" + events.Subject + "','" + events.Description + "','" + startdate + "','" + enddate + "')";
-            }
+            this.AddUpdateDeleteSQL(qry);
+        }
+        public void EditEvent(Events events, string userid)
+        {
+            string qry = string.Empty;
+            qry = "Update tblEvents set Subject = '" + events.Subject + "', Description = '" + events.Description +
+                    "', StartDate= '" + events.StartDate + "',EndDate= '" + events.EndDate + "' where EventID= '" + events.EventID + "' and UserID= " + userid;
             this.AddUpdateDeleteSQL(qry);
         }
 
@@ -85,7 +129,7 @@ namespace EventReminderApp1
 
         public int Delete(int eventId)
         {
-            string qry = "select * from tblEvents where EventId=" + eventId;
+            string qry = "Delete from tblEvents where EventId=" + eventId;
             return this.AddUpdateDeleteSQL(qry);
         }
 
@@ -110,9 +154,11 @@ namespace EventReminderApp1
             return eventList;
         }
 
-       /* public List<Events> GetMailDetails(string qry)
+       public List<Events> GetMailDetails(string qry)
         {
+            Events events = new Events();
             List<Events> mailDetails = new List<Events>();
+            var startdate = Convert.ToDateTime(events.StartDate);
             con.Open();
             SqlCommand cmd = new SqlCommand(qry, con);
             cmd.CommandType = CommandType.Text;
@@ -124,9 +170,9 @@ namespace EventReminderApp1
             {
                 foreach (DataRow row in datatable.Rows)
                 {
-                    Events events = new Events();
+
                     events.Email = row["Email"].ToString();
-                    events.StartDate = row["StartDate"].ToString();
+                    startdate =  Convert.ToDateTime(row["StartDate"]);
                     events.Subject = row["Subject"].ToString();
                     events.Description = row["Description"].ToString();
                     mailDetails.Add(events);
@@ -134,7 +180,7 @@ namespace EventReminderApp1
             }
             con.Close();
             return mailDetails;
-        }*/
+        }
 
     }
 }

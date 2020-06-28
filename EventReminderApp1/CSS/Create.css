@@ -1,4 +1,7 @@
-﻿
+﻿.create-align{
+    margin-top: 10%;
+    margin-left: 25px;
+}
 .content {
     margin-left: 10% 15% 20% 15%;
 }
@@ -11,23 +14,23 @@
 }
 
 .label-wrapper {
-    display: block;
+    display:inline-block;
+    text-align: right;
     position: relative;
     float: initial;
     overflow: hidden;
     color: #555;
-     text-align: right;
-    margin-bottom: 25px;
+    margin-left:50px;
 }
 
 .text-wrapper {
-    display: block;
-    width: 30%;
+    display: inline-block;
+    width: 40%;
     height: 34px;
     padding: 6px 12px;
     font-size: 14px;
     color: #555;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 15px;
@@ -41,10 +44,10 @@
     font-size: 14px;
     height: auto;
     font-weight: normal;
-    margin-top: 5px;
-    margin-left: 150px;
-    width: 20%;
-    padding: 14px 0;
+    margin: 20px 175px;
+    border-radius: 25px;
+    width: 15%;
+    padding: 10px 0;
     text-transform: uppercase;
     border-color: #ced4da;
 }
@@ -58,46 +61,5 @@
         background: linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
     }
 
-/*.note {
-    text-align: center;
-    height: 80px;
-    background: -webkit-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: -moz-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: -o-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    color: #fff;
-    font-weight: bold;
-    line-height: 80px;
-    border-radius: .5rem;
-    width: 100%;
-    margin-top: 10px;
-}
 
-.form-content {
-    padding: 5% 10% 5% 10%;
-    border: 1px solid #ced4da;
-    border-radius: .5rem;
-    margin-bottom: 2%;
-    margin-top: 10px;
-    width: 100%;
-}
 
-.mainDiv {
-    margin: .5px 25px;
-    padding: 20px;
-    overflow: hidden;
-}
-
-.createDiv {
-    float: left;
-    background: -webkit-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: -moz-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: -o-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    padding: 8px 10px;
-    border-radius: .25rem;
-}
-
-    .createDiv a {
-        color: #fff;
-    }*/

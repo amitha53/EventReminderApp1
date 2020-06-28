@@ -2,6 +2,12 @@
     /* margin: 10vh auto;*/
 }
 
+.bgcolor {
+    background: -webkit-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
+    background: -moz-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
+    background: -o-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
+    background: linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
+}
 .heading {
     font-size: 25px;
     text-transform: uppercase;
@@ -73,7 +79,8 @@
     font-weight: normal;
     padding: 14px 0;
     text-transform: uppercase;
-    border-color: #000000;
+    border-color: #ced4da;
+    border-radius: 30px;
 }
 
     .btn-login:hover,
@@ -125,54 +132,6 @@
         }
 
 
-/*.mainDiv {
-    margin: .5px 25px;
-    padding: 20px;
-    overflow: hidden;
-}
-
-.createDiv {
-    float: left;
-    background: -webkit-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: -moz-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: -o-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    padding: 8px 10px;
-    border-radius: .25rem;
-}
-
-    .createDiv a {
-        color: #fff;
-    }
-
-.calDiv {
-    float: left;
-    margin-left: 50px;
-    background: -webkit-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: -moz-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: -o-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    padding: 8px 10px;
-    border-radius: .25rem;
-}
-
-    .calDiv a {
-        color: #fff;
-    }
-
-.deleteDiv {
-    float: right;
-    background: -webkit-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: -moz-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: -o-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    background: linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
-    padding: 8px 10px;
-    border-radius: .25rem;
-}
-
-    .deleteDiv a {
-        color: #fff;
-    }*/
 
 .btnsave {
     background: -webkit-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
@@ -212,4 +171,5 @@
     }
 .eventlogin_container {
     width: unset !important;
+
 }

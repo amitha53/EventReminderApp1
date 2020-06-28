@@ -9,11 +9,6 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>View</title>
-
-    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>-->
-
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -30,11 +25,7 @@
     <script src="~/Scripts/Home.js"></script>
 </head>
 <body>
-    @if (ViewBag.UserId != null && ViewBag.Emaild != null)
-    {
-        <input type="hidden" class="form-control" id="sessionUserId" value="@ViewBag.UserId" />
-        <input type="hidden" class="form-control" id="sessionEmailId" value="@ViewBag.Emaild" />
-    }
+
     <header class="header">
         <h2>
             Event Reminder
@@ -151,19 +142,18 @@
             <br />
             <br />
             <!-- Nav tabs -->
-            <ul class="nav nav-tabs">
-                <li class="active">
-                    <a data-toggle="tab" href="#calview">Calendar View</a>
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#calview">Calendar List</a>
                 </li>
-                <li>
-                    <a data-toggle="tab" href="#indexview">List View</a>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#indexview">List View</a>
                 </li>
             </ul>
-
             <!-- Tab panes -->
             <div class="tab-content">
                 <!--Calendar View-->
-                <div id="calview" class="tab-pane fade in active">
+                <div id="calview" class="container tab-pane active">
                     <br />
                     <br />
                     <div id="calender"> </div>
@@ -190,73 +180,68 @@
                         </div>
                     </div>
 
-                    <div id="ModalEdit" class="modal fade" role="dialog">
+                    <div id="modalEdit" class="modal fade" role="dialog">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                                     <h4 class="modal-title">Edit Event</h4>
                                 </div>
-                                <div class="container content">
-                                    <div class="form">
-                                        <form method="POST">
-                                            <div class="form-content">
-                                                <div class="row">
-                                                    <div class="col-md-8">
-                                                        <input type="hidden" id="calEventID" name="EventId" />
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-8">
-                                                        <input type="hidden" name="UserId" />
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-2">
-                                                        <label class="label-wrapper" style="margin-top:22px;">Subject :</label>
-                                                    </div>
-                                                    <div class="col-md-9">
-                                                        <input type="text" name="subject" id="calSubject" class="text-wrapper" style="margin-top:15px;" placeholder="Subject" required>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-2">
-                                                        <label class="label-wrapper">Description :</label>
-                                                    </div>
-                                                    <div class="col-md-9">
-                                                        <input type="text" class="text-wrapper" id="calDescription" name="description" placeholder="Description" required />
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-2">
-                                                        <label class="label-wrapper">Start Date :</label>
-                                                    </div>
-                                                    <div class="col-md-9">
-                                                        <input type="text" class="text-wrapper" id="calStart" name="startdate" required />
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-2">
-                                                        <label class="label-wrapper">End Date :</label>
-                                                    </div>
-                                                    <div class="col-md-9">
-                                                        <input type="text" class="text-wrapper" id="calEnd" name="enddate" required />
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    <button type="button" id="btnSave" class="btn btn-default buttonsbt">Save</button>
-                                                </div>
+                                <form method="POST">
+                                    <div class="form-content">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <input class="text-wrapper" type="hidden" name="EventId" id="calEventID" required />
                                             </div>
-                                        </form>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <input class="text-wrapper" type="hidden" name="UserId" id="calUserID" required />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="label-
+                                                        xpper">Subject :</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input type="text" class="text-wrapper" id="calSubject" name="subject" placeholder="" required />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="label-wrapper">Description :</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input type="text" class="text-wrapper" id="calDescription" name="description" placeholder="" required />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="label-wrapper">Start Date :</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input type="text" class="text-wrapper" id="calStart" name="startdate" placeholder="" required />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="label-wrapper">End Date :</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input type="text" class="text-wrapper" id="calEnd" name="enddate" placeholder="" />
+                                            </div>
+                                        </div>
+                                        <button type="button" id="btnSave" class="btn btn-default btnsave">Save</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                     </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!--List View-->
-                <div id="indexview" class="tab-pane fade">
+                <div id="indexview" class="container tab-pane fade">
                     <br />
                     <br />
                     <div id="listtable">
@@ -272,74 +257,70 @@
                             </thead>
                             <tbody></tbody>
                         </table>
-                        <div id="listEdit" class="modal fade" role="dialog">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                        <h4 class="modal-title">Edit Event</h4>
-                                    </div>
-                                    <div class="container content">
-                                        <div class="form">
-                                            <form method="POST">
-                                                <div class="form-content">
-                                                    <div class="row">
-                                                        <div class="col-md-8">
-                                                            <input type="hidden" id="listEventID" name="EventId" />
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-8">
-                                                            <input type="hidden" name="UserId" />
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-2">
-                                                            <label class="label-wrapper" style="margin-top:22px;">Subject :</label>
-                                                        </div>
-                                                        <div class="col-md-9">
-                                                            <input type="text" name="subject" id="listSubject" class="text-wrapper" style="margin-top:15px;" placeholder="Subject" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-2">
-                                                            <label class="label-wrapper">Description :</label>
-                                                        </div>
-                                                        <div class="col-md-9">
-                                                            <input type="text" class="text-wrapper" id="listDescription" name="description" placeholder="Description" required />
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-2">
-                                                            <label class="label-wrapper">Start Date :</label>
-                                                        </div>
-                                                        <div class="col-md-9">
-                                                            <input type="text" class="text-wrapper" id="listStart" name="startdate" required />
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-2">
-                                                            <label class="label-wrapper">End Date :</label>
-                                                        </div>
-                                                        <div class="col-md-9">
-                                                            <input type="text" class="text-wrapper" id="listEnd" name="enddate" required />
-                                                        </div>
-                                                    </div>
-
-                                                    <div>
-                                                        <button type="button" id="btnEdit" class="btn btn-default buttonsbt">Save</button>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
+                    </div>
+                    <div id="listEdit" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Edit Event</h4>
                                 </div>
+                                <form method="POST">
+                                    <div class="form-content">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <input class="text-wrapper" type="hidden" name="EventId" id="calEventID" required />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <input class="text-wrapper" type="hidden" name="UserId" id="calUserID" required />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="label-
+                                                        xpper">Subject :</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input type="text" class="text-wrapper" id="calSubject" name="subject" placeholder="" required />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="label-wrapper">Description :</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input type="text" class="text-wrapper" id="calDescription" name="description" placeholder="" required />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="label-wrapper">Start Date :</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input type="text" class="text-wrapper" id="calStart" name="startdate" placeholder="" required />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="label-wrapper">End Date :</label>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <input type="text" class="text-wrapper" id="calEnd" name="enddate" placeholder="" />
+                                            </div>
+                                        </div>
+                                        <button type="button" id="btnSave" class="btn btn-default btnsave">Save</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     <!---------------------------------------->
     <!---------------Create Page-------------->
@@ -397,7 +378,7 @@
                                         </div>
                                     </div>
 
-                                    <div>
+                                    <div id="createBtnSubmit">
                                         <input type="button" name="register-submit" id="createBtnSubmit" class="form-control btn buttonsbt" value="Submit">
                                     </div>
                                 </div>

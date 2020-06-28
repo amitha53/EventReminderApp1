@@ -1,6 +1,5 @@
 ﻿$(document).ready(function () {
-    $('#homepg').css('display', 'none');
-    $('#btnlogout').css('display', 'none');
+   
     var events = [];
     var eventSelected = null;
 
@@ -18,10 +17,18 @@
     var user;
     var loggedIn = false;
 
+    $('#homepg').css('display', 'none');
+    $('#btnlogout').css('display', 'none');
+
+    if ($('#sessionUserId').val() != null && $('#sessionEmailId').val() != null) {
+        $('#modalLogin').hide();
+        $('#homepg').css('display', 'block');
+        $('#btnlogout').css('display', 'block');
+        FetchEventAndRenderCalender();
+        listEvents();
+
+    }
     /*-------------------------Login scripts-----------------------*/
-    $('#btsignin').click(function () {
-        $('#modalLogin').modal();
-    });
 
     $('#registersubmit').click(function () {
         var regdata = {
@@ -51,6 +58,15 @@
     }
 
     $('#loginsubmit').click(function () {
+        if ($('#loginemail').val().trim() == "") {
+            alert('Enter your EmailID');
+            return;
+        }
+        if ($('#loginpass').val().trim() == "") {
+            alert('Enter your Password');
+            return;
+        }
+
         var logindata = {
             Email: $('#loginemail').val(),
             Password: $('#loginpass').val(),
@@ -58,7 +74,6 @@
         UserLogin(logindata);
     });
     function UserLogin(logindata) {
-        console.log(logindata);
         $.ajax({
             type: "POST",
             url: "/User/Login",
@@ -67,7 +82,6 @@
                 if (data.status) {
                     $('#modalLogin').hide();
                     $('#homepg').css('display', 'block');
-                    $('#btsignin').css('display', 'none');
                     $('#btnlogout').css('display', 'block');
                     FetchEventAndRenderCalender();
                     listEvents();
@@ -155,10 +169,8 @@
                 location: user.location
             },
             success: function (data) {
-                console.log(data);
                 $('#modalLogin').hide();
                 $('#homepg').css('display', 'block');
-                $('#btsignin').css('display', 'none');
                 $('#btnlogout').css('display', 'block');
                 FetchEventAndRenderCalender();
                 listEvents();
@@ -228,10 +240,8 @@
                 name: fbuser.name,
             },
             success: function (data) {
-                console.log(data);
                 $('#modalLogin').hide();
                 $('#homepg').css('display', 'block');
-                $('#btsignin').css('display', 'none');
                 $('#btnlogout').css('display', 'block');
                 FetchEventAndRenderCalender();
                 listEvents();
@@ -259,7 +269,6 @@
                         end: moment(v.EndDate),
                     });
                 });
-                // console.log(events);
                 GenerateCalender(events);
             },
             error: function (error) {
@@ -269,7 +278,6 @@
     }
 
     function GenerateCalender(events) {
-        console.log(events);
         $('#calender').fullCalendar('destroy');
         $('#calender').fullCalendar({
             contentHeight: 400,
@@ -300,7 +308,9 @@
         })
     }
     /* --------Calendar edit-------------*/
-
+    $('#btnCalEdit').click(function () {
+        openEditForm();
+    });
     function openEditForm() {
         if (eventSelected != null) {
             $('#calEventID').val(eventSelected.eventID);
@@ -344,12 +354,9 @@
             StartDate: $('#calStart').val(),
             EndDate: $('#calEnd').val()
         }
-        console.log(editdata);
-        // var datatosend = JSON.stringify(data);
         SaveEvent(editdata);
     });
     function SaveEvent(editdata) {
-        console.log(editdata);
         $.ajax({
             type: "POST",
             url: "/User/SaveEvent",
@@ -359,7 +366,6 @@
                     FetchEventAndRenderCalender();
                     $('#ModalEdit').modal('hide');
                 }
-
             },
             error: function () {
                 alert('Failed');
@@ -393,7 +399,7 @@
             type: "GET",
             url: "/User/GetEvents",
             success: function (data) {
-                var items = '';
+                var item = '';
                 $.each(data, function (i, item) {
                     var rows = "<tr id=" + item.EventID + ">"
                         + "<td>" + item.EventID + "</td>"
@@ -401,15 +407,71 @@
                         + "<td>" + item.Description + "</td>"
                         + "<td>" + item.StartDate + "</td>"
                         + "<td>" + item.EndDate + "</td>"
-                       // + "<td>" + "<button class'listEdit'" + ">Edit</button>" + "</td>"
+                        + "<td>" + "<button class='listEdit'" + ">Edit</button>" + "</td>"
                         + "<td>" + "<button class='listDelete'" + ">Delete</button>" + "</td>"
                         + "</tr>";
                     $('#listtable tbody').append(rows);
                 });
                 $('#listtable tbody .listEdit').click(function () {
-                    var eventId = $(this).closest('tr').attr("id");
-                    openEditForm();
+                    var eveId = $(this).closest('tr').attr("id");
+                    openlistEditForm(eveId);
                 });
+                function openlistEditForm(eveId) {
+                    $('#listEventID').val(eveId);
+                    $('#listSubject').val(item.Subject);
+                    $('#listDescription').val(item.Description);
+                    $('#listStart').val(item.StartDate);
+                    $('#listEnd').val(item.EndDate);
+                    $('#listEdit').modal();
+                }
+                $('#btnEdit').click(function () {
+                    if ($('#listSubject').val().trim() == "") {
+                        alert('Subject required');
+                        return;
+                    }
+                    if ($('#listStart').val().trim() == "") {
+                        alert('Start date required');
+                        return;
+                    }
+                    if ($('#listEnd').val().trim() == "") {
+                        alert('End date required');
+                        return;
+                    }
+                    else {
+                        var startDate = moment($('#listStart').val(), "MM-DD-YYYY HH:mm a").toDate();
+                        var endDate = moment($('#listEnd').val(), "MM-DD-YYYY HH:mm a").toDate();
+                        if (startDate >= endDate) {
+                            alert('Invalid end date');
+                            return;
+                        }
+                    }
+
+                    var data = {
+                        EventID: $('#listEventID').val(),
+                        Subject: $('#listSubject').val().trim(),
+                        Description: $('#listDescription').val(),
+                        StartDate: $('#listStart').val(),
+                        EndDate: $('#listEnd').val()
+                    }
+                    SaveEvent(data);
+                });
+                function SaveEvent(data) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/User/SaveEvent",
+                        data: data,
+                        success: function (data) {
+                            if (data.status) {
+                                listEvents();
+                                FetchEventAndRenderCalender();
+                                $('#listEdit').modal('hide');
+                            }
+                        },
+                        error: function () {
+                            alert('Failed');
+                        }
+                    });
+                }
                 $('#listtable tbody .listDelete').click(function () {
                     var eventId = $(this).closest('tr').attr("id");
                     if (confirm('Are you sure?') == true) {
@@ -420,6 +482,7 @@
                             success: function (data) {
                                 $("#" + eventId).remove();
                                 listEvents();
+                                FetchEventAndRenderCalender();
                             },
                             error: function () {
                                 alert('Failed');
@@ -435,8 +498,17 @@
     /*-----------------Create Page scripts---------------------------*/
 
     $('#btncreate').click(function () {
-       $('#ModalCreate').modal();
+        openCreateFrorm();
     });
+
+    function openCreateFrorm() {
+        $('#crteEventID').val("");
+        $('#crteSubject').val("");
+        $('#crteDescription').val("");
+        $('#crteStart').val("");
+        $('#crteEnd').val("");
+        $('#ModalCreate').modal();
+    }
 
     $('#createBtnSubmit').click(function () {
         if ($('#crteSubject').val().trim() == "") {
@@ -452,8 +524,8 @@
             return;
         }
         else {
-            var startDate = moment($('#crteStart').val(), "MM-DD-YYYY HH:mm a").toDate();
-            var endDate = moment($('#crteEnd').val(), "MM-DD-YYYY HH:mm a").toDate();
+            var startDate = moment($('#crteStart').val(), "DD-MM-YYYY HH:mm a").toDate();
+            var endDate = moment($('#crteEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
             if (startDate >= endDate) {
                 alert('Invalid end date');
                 return;
@@ -467,12 +539,9 @@
             StartDate: $('#crteStart').val(),
             EndDate: $('#crteEnd').val()
         }
-        console.log(createdata);
-        // var datatosend = JSON.stringify(data);
         CreateEvent(createdata);
     });
     function CreateEvent(createdata) {
-        console.log(createdata);
         $.ajax({
             type: "POST",
             url: "/User/CreateEvent",
@@ -491,24 +560,28 @@
     }
     /*--------------------------------------------------------------*/
     /*----------------------Logout scripts----------------------------*/
+
     $('#btnlogout').click(function () {
         logout();
         $('#homepg').css('display', 'none');
-        $('#btsignin').css('display', 'block');
         $('#btnlogout').css('display', 'none');
+        $('#modalLogin').css('display', 'block');
+      //  $('#modalLogin').modal();
         $('#loginemail').val("");
         $('#loginpass').val("");
+
+        function logout() {
+            $.ajax({
+                type: "GET",
+                url: "/User/Logout",
+                success: function (data) {
+
+                },
+                error: function () {
+                    alert('Failed');
+                }
+            });
+        }
     });
-    function logout() {
-        $.ajax({
-            type: "GET",
-            url: "/User/Logout",
-            success: function (data) {
-                $('#modalLogin').modal();
-            },
-            error: function (error) {
-                alert('failed');
-            }
-        });
-    }
+
 });

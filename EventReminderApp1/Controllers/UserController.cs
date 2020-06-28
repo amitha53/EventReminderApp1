@@ -16,21 +16,27 @@ namespace EventReminderApp1.Controllers
     public class UserController : Controller
     {
         // GET: User
-        string Connectionstring = @"Data Source= LENOVO\SQLSERVER; Initial Catalog = dbwebapp; Integrated Security = True";
         EventRepository eventRepository = new EventRepository();
         // GET: User
 
-      /*  public UserController()
+       public UserController()
         {
             Timer myTimer = new Timer();
             myTimer.Interval = 60000;
             myTimer.AutoReset = true;
             myTimer.Elapsed += new ElapsedEventHandler(SendMailToUser);
             myTimer.Enabled = true;
-        }*/
+            //SendEmail("amithaunnikrishnan415@gmail.com", "Reminder", "hi");
+        }
 
         public ActionResult Home()
         {
+            if (Session["UserID"] != null)
+            {
+                ViewBag.UserId = Session["UserID"];
+                ViewBag.Emaild = Session["EmailId"];
+                return View();
+            }
             return View();
         }
 
@@ -45,102 +51,74 @@ namespace EventReminderApp1.Controllers
         public JsonResult Login(Registration login)
         {
             var status = false;
-            using (SqlConnection con = new SqlConnection(Connectionstring))
+              
+            List<string> variables = eventRepository.LoginDetails(login);
+
+            string userid = variables[0];
+            string mail = variables[1];
+            
+            if (variables != null)
             {
-                con.Open();
-                string query = "Select UserID,EmailId,Password From tblRegister Where EmailId=@EmailId and Password=@Password";
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.CommandType = CommandType.Text;
-                cmd.Parameters.AddWithValue("@EmailId", login.Email);
-                cmd.Parameters.AddWithValue("@Password", login.Password);
-
-                SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                DataTable datatable = new DataTable();
-                sda.Fill(datatable);
-                if (datatable.Rows.Count == 1)
-                {
-                    DataRow row = datatable.Rows[0];
-                    login.UserID = Convert.ToInt32(row["UserID"]);
-                    Session["UserID"] = row["UserID"].ToString();
-                    Session["EmailId"] = login.Email.ToString();
-
-                    status = true;
-                }
-                else
-                {
-
-                }
-                return new JsonResult { Data = new { status = status } };
+                Session["UserID"] = userid;
+                Session["EmailId"] = mail;
+                status = true;
             }
+            else
+            {
+
+            }
+            return new JsonResult { Data = new { status = status } };
         }
         [HttpPost]
         public JsonResult GoogleLogin(string email, string name, string gender, string lastname, string location)
         {
             var status = false;
-            using (SqlConnection con = new SqlConnection(Connectionstring))
+            string qry;
+            string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
+            List<string> variables = eventRepository.GoogleLoginDetails(query);
+            string userid = variables[0];
+            string mail = variables[1];
+
+            if (variables != null)
             {
-                string qry;
-                con.Open();
-                string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.CommandType = CommandType.Text;
-
-                SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                DataTable datatable = new DataTable();
-                sda.Fill(datatable);
-                if (datatable.Rows.Count == 1)
-                {
-                    DataRow row = datatable.Rows[0];
-                    string uid = row["UserID"].ToString();
-                    string mail = row["EmailId"].ToString();
-                    Session["UserID"] = uid;
-                    Session["EmailId"] = mail;
-
-                    status = true;
-                }
-                else
-                {
-                    qry = "insert into tblRegister(UserName,EmailId)" +
-                    " values('" + name + "','" + email + "')";
-                    eventRepository.AddUpdateDeleteSQL(qry);
-                    status = true;
-                }
+                Session["UserID"] = userid;
+                Session["EmailId"] = mail;
+                status = true;
             }
+            else
+            {
+                qry = "insert into tblRegister(UserName,EmailId)" +
+                                    " values('" + name + "','" + email + "')";
+                eventRepository.AddUpdateDeleteSQL(qry);
+                status = true;
+            }
+               
             return new JsonResult { Data = new { status = status } };
         }
 
         public JsonResult FacebookLogin(string email, string name)
         {
             var status = false;
-            using (SqlConnection con = new SqlConnection(Connectionstring))
+            string qry;
+            string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
+            List<string> variables = eventRepository.GoogleLoginDetails(query);
+            string userid = variables[0];
+            string mail = variables[1];
+
+            if (variables != null)
             {
-                string qry;
-                con.Open();
-                string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.CommandType = CommandType.Text;
-
-                SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                DataTable datatable = new DataTable();
-                sda.Fill(datatable);
-                if (datatable.Rows.Count == 1)
-                {
-                    DataRow row = datatable.Rows[0];
-                    string uid = row["UserID"].ToString();
-                    string mail = row["EmailId"].ToString();
-                    Session["UserID"] = uid;
-                    Session["EmailId"] = mail;
-
-                    status = true;
-                }
-                else
-                {
-                    qry = "insert into tblRegister(UserName,EmailId)" +
-                    " values('" + name + "','" + email + "')";
-                    eventRepository.AddUpdateDeleteSQL(qry);
-                    status = true;
-                }
+                Session["UserID"] = userid;
+                Session["EmailId"] = mail;
+                status = true;
             }
+            else
+            {
+                qry = "insert into tblRegister(UserName,EmailId)" +
+                                    " values('" + name + "','" + email + "')";
+                eventRepository.AddUpdateDeleteSQL(qry);
+                status = true;
+            }
+
             return new JsonResult { Data = new { status = status } };
         }
         public JsonResult GetEvents()
@@ -157,7 +135,7 @@ namespace EventReminderApp1.Controllers
         public JsonResult SaveEvent(Events events)
         {
             string userid = Session["UserID"].ToString();  
-            eventRepository.AddEditEvent(events,userid);
+            eventRepository.EditEvent(events,userid);
             var status = true;
             return new JsonResult { Data = new { status = status } };
         }
@@ -174,7 +152,7 @@ namespace EventReminderApp1.Controllers
         public JsonResult CreateEvent(Events events)
         {
             string userid = Session["UserID"].ToString();
-            eventRepository.AddEditEvent(events, userid);
+            eventRepository.AddEvent(events, userid);
             var status = true;
             return new JsonResult { Data = new { status = status } };
         }
@@ -186,7 +164,7 @@ namespace EventReminderApp1.Controllers
             return new JsonResult { Data = new { status = status },JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
-       /* public void SendMailToUser(object sender, EventArgs e)
+       public void SendMailToUser(object sender, EventArgs e)
         {
             bool status = false;
 
@@ -228,7 +206,7 @@ namespace EventReminderApp1.Controllers
                 return false;
             }
 
-        }*/
+        }
 
 
     }
