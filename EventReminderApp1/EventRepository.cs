@@ -78,8 +78,11 @@ namespace EventReminderApp1
         public void AddEvent(Events events, string userid)
         {
             string qry = string.Empty;
-            var startdate = Convert.ToDateTime(events.StartDate);
-            var enddate = Convert.ToDateTime(events.EndDate);
+           // var startdate = Convert.ToDateTime(events.StartDate);
+          //  var enddate = Convert.ToDateTime(events.EndDate);
+            var startdate = events.StartDate.ToString("yyyy-MM-dd HH:mm");
+            var enddate = events.EndDate.ToString("yyyy-MM-dd HH:mm");
+
             qry = "insert into tblEvents(UserID,Subject,Description,StartDate,EndDate)" +
                     " values('" + userid + "','" + events.Subject + "','" + events.Description + "','" + startdate + "','" + enddate + "')";
             this.AddUpdateDeleteSQL(qry);
@@ -111,8 +114,8 @@ namespace EventReminderApp1
                 UserID = Convert.ToInt32(row.ItemArray[1]),
                 Subject = row.ItemArray[2].ToString(),
                 Description = row.ItemArray[3].ToString(),
-                StartDate = row.ItemArray[4].ToString(),
-                EndDate = row.ItemArray[5].ToString(),
+                StartDate = Convert.ToDateTime(row.ItemArray[4]),
+                EndDate = Convert.ToDateTime(row.ItemArray[5]),
             };
         }
 
@@ -147,18 +150,18 @@ namespace EventReminderApp1
                 eventModel.UserID = Convert.ToInt32(row.ItemArray[1]);
                 eventModel.Subject = row.ItemArray[2].ToString();
                 eventModel.Description = row.ItemArray[3].ToString();
-                eventModel.StartDate = row.ItemArray[4].ToString();
-                eventModel.EndDate = row.ItemArray[5].ToString();
+                eventModel.StartDate = Convert.ToDateTime(row.ItemArray[4]);
+                eventModel.EndDate = Convert.ToDateTime(row.ItemArray[5]);
                 eventList.Add(eventModel);
             }
             return eventList;
         }
 
-       public List<Events> GetMailDetails(string qry)
+        public List<Events> GetMailDetails(string qry)
         {
-            Events events = new Events();
+           
             List<Events> mailDetails = new List<Events>();
-            var startdate = Convert.ToDateTime(events.StartDate);
+           // var startdate = Convert.ToDateTime(events.StartDate);
             con.Open();
             SqlCommand cmd = new SqlCommand(qry, con);
             cmd.CommandType = CommandType.Text;
@@ -170,9 +173,9 @@ namespace EventReminderApp1
             {
                 foreach (DataRow row in datatable.Rows)
                 {
-
-                    events.Email = row["Email"].ToString();
-                    startdate =  Convert.ToDateTime(row["StartDate"]);
+                    Events events = new Events();
+                    events.Email = row["EmailId"].ToString();
+                    events.StartDate = Convert.ToDateTime(row["StartDate"]);
                     events.Subject = row["Subject"].ToString();
                     events.Description = row["Description"].ToString();
                     mailDetails.Add(events);

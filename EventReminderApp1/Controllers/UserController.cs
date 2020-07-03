@@ -19,14 +19,14 @@ namespace EventReminderApp1.Controllers
         EventRepository eventRepository = new EventRepository();
         // GET: User
 
-       public UserController()
+        public UserController()
         {
             Timer myTimer = new Timer();
             myTimer.Interval = 60000;
             myTimer.AutoReset = true;
             myTimer.Elapsed += new ElapsedEventHandler(SendMailToUser);
             myTimer.Enabled = true;
-            //SendEmail("amithaunnikrishnan415@gmail.com", "Reminder", "hi");
+          //  SendEmail("amithaunnikrishnan415@gmail.com", "Reminder", "hi");
         }
 
         public ActionResult Home()
@@ -131,6 +131,12 @@ namespace EventReminderApp1.Controllers
             List<Events> eventlist = eventRepository.EventsList(userid);
             return new JsonResult { Data = eventlist, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
+        public JsonResult Edit(int id)
+        {
+            Events events = eventRepository.GetEventById(id);
+            return new JsonResult { Data = events, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+
+        }
         [HttpPost]
         public JsonResult SaveEvent(Events events)
         {
@@ -169,7 +175,7 @@ namespace EventReminderApp1.Controllers
             bool status = false;
 
             var currentDate = DateTime.Now;
-            var eventDate = currentDate.AddMinutes(+5).ToString("MM-DD-YYYY HH:mm a");
+            var eventDate = currentDate.AddMinutes(+5).ToString("yyyy-MM-dd HH:mm");
             string qry = $"Select EmailId,StartDate,Subject,Description from tblRegister join tblEvents on (tblRegister.UserID=tblEvents.UserID) where StartDate='{eventDate}' ";
             List<Events> mailDetails = eventRepository.GetMailDetails(qry);
             foreach (Events item in mailDetails)
@@ -207,6 +213,30 @@ namespace EventReminderApp1.Controllers
             }
 
         }
+       /* public void SendResetPasswordLinkEmail(string toEmail, string activationCode)
+        {
+            var verifyUrl = "/User/ResetPassword/" + activationCode;
+            var link = Request.Url.AbsoluteUri.Replace(Request.Url.PathAndQuery, verifyUrl);
+            var subject = "Reset Password";
+            string emailBody = "<p>Hi,<br /><br />A request is been sent to reset your account password. Please click the link below to reset your password </ p >" +
+                "<br /><br /><a href=" + link + ">Reset Password link</a>";
+
+            string senderEmail = System.Configuration.ConfigurationManager.AppSettings["SenderEmail"].ToString();
+            string senderPassword = System.Configuration.ConfigurationManager.AppSettings["SenderPassword"].ToString(); ;
+
+            SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+            client.EnableSsl = true;
+            client.Timeout = 100000;
+            client.DeliveryMethod = SmtpDeliveryMethod.Network;
+            client.UseDefaultCredentials = false;
+            client.Credentials = new NetworkCredential(senderEmail, senderPassword);
+            MailMessage mailMessage = new MailMessage(senderEmail, toEmail, subject, emailBody);
+            mailMessage.IsBodyHtml = true;
+            mailMessage.BodyEncoding = UTF8Encoding.UTF8;
+            client.Send(mailMessage);
+
+            return;
+        }*/
 
 
     }

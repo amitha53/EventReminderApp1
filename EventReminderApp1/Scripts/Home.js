@@ -19,14 +19,15 @@
 
     $('#homepg').css('display', 'none');
     $('#btnlogout').css('display', 'none');
+    $('#userDetails').css('display', 'none');
 
     if ($('#sessionUserId').val() != null && $('#sessionEmailId').val() != null) {
         $('#modalLogin').hide();
         $('#homepg').css('display', 'block');
         $('#btnlogout').css('display', 'block');
+        $('#userDetails').css('display', 'block');
         FetchEventAndRenderCalender();
         listEvents();
-
     }
     /*-------------------------Login scripts-----------------------*/
 
@@ -66,7 +67,6 @@
             alert('Enter your Password');
             return;
         }
-
         var logindata = {
             Email: $('#loginemail').val(),
             Password: $('#loginpass').val(),
@@ -83,6 +83,7 @@
                     $('#modalLogin').hide();
                     $('#homepg').css('display', 'block');
                     $('#btnlogout').css('display', 'block');
+                    $('#userDetails').css('display', 'block');
                     FetchEventAndRenderCalender();
                     listEvents();
                     //$('#modalLogin').modal('hide');
@@ -172,6 +173,7 @@
                 $('#modalLogin').hide();
                 $('#homepg').css('display', 'block');
                 $('#btnlogout').css('display', 'block');
+                $('#userDetails').css('display', 'block');
                 FetchEventAndRenderCalender();
                 listEvents();
             },
@@ -243,15 +245,15 @@
                 $('#modalLogin').hide();
                 $('#homepg').css('display', 'block');
                 $('#btnlogout').css('display', 'block');
+                $('#userDetails').css('display', 'block');
                 FetchEventAndRenderCalender();
                 listEvents();
             },
         });
     }
-    /*-------------------------------------------------------*/
-
     /*------------------------------------------------------*/
-    /*-----------------------HomePage scripts----------------------*/
+/*-----------------------HomePage scripts----------------------*/
+
     //Calender script
     function FetchEventAndRenderCalender() {
         events = [];
@@ -269,6 +271,7 @@
                         end: moment(v.EndDate),
                     });
                 });
+                // console.log(events);
                 GenerateCalender(events);
             },
             error: function (error) {
@@ -278,6 +281,7 @@
     }
 
     function GenerateCalender(events) {
+        console.log(events);
         $('#calender').fullCalendar('destroy');
         $('#calender').fullCalendar({
             contentHeight: 400,
@@ -307,6 +311,7 @@
             }
         })
     }
+   
     /* --------Calendar edit-------------*/
     $('#btnCalEdit').click(function () {
         openEditForm();
@@ -364,6 +369,7 @@
             success: function (data) {
                 if (data.status) {
                     FetchEventAndRenderCalender();
+                    listEvents();
                     $('#ModalEdit').modal('hide');
                 }
             },
@@ -382,6 +388,7 @@
                 success: function (data) {
                     if (data.status) {
                         FetchEventAndRenderCalender();
+                        listEvents();
                         $('#myModal').modal('hide');
                     }
                 },
@@ -394,85 +401,35 @@
   
     // ListView Script
     function listEvents() {
-        $("#listtable tbody tr").empty();  
+        $("#listtable tbody tr").empty();
         $.ajax({
             type: "GET",
             url: "/User/GetEvents",
             success: function (data) {
-                var item = '';
+                var items = data;
+                console.log(items);
                 $.each(data, function (i, item) {
                     var rows = "<tr id=" + item.EventID + ">"
                         + "<td>" + item.EventID + "</td>"
                         + "<td>" + item.Subject + "</td>"
                         + "<td>" + item.Description + "</td>"
-                        + "<td>" + item.StartDate + "</td>"
-                        + "<td>" + item.EndDate + "</td>"
+                        + "<td>" + item.StartDateStr + "</td>"
+                        + "<td>" + item.EndDateStr + "</td>"
                         + "<td>" + "<button class='listEdit'" + ">Edit</button>" + "</td>"
                         + "<td>" + "<button class='listDelete'" + ">Delete</button>" + "</td>"
                         + "</tr>";
                     $('#listtable tbody').append(rows);
                 });
-                $('#listtable tbody .listEdit').click(function () {
-                    var eveId = $(this).closest('tr').attr("id");
-                    openlistEditForm(eveId);
-                });
-                function openlistEditForm(eveId) {
-                    $('#listEventID').val(eveId);
-                    $('#listSubject').val(item.Subject);
-                    $('#listDescription').val(item.Description);
-                    $('#listStart').val(item.StartDate);
-                    $('#listEnd').val(item.EndDate);
-                    $('#listEdit').modal();
-                }
-                $('#btnEdit').click(function () {
-                    if ($('#listSubject').val().trim() == "") {
-                        alert('Subject required');
-                        return;
-                    }
-                    if ($('#listStart').val().trim() == "") {
-                        alert('Start date required');
-                        return;
-                    }
-                    if ($('#listEnd').val().trim() == "") {
-                        alert('End date required');
-                        return;
-                    }
-                    else {
-                        var startDate = moment($('#listStart').val(), "MM-DD-YYYY HH:mm a").toDate();
-                        var endDate = moment($('#listEnd').val(), "MM-DD-YYYY HH:mm a").toDate();
-                        if (startDate >= endDate) {
-                            alert('Invalid end date');
-                            return;
-                        }
-                    }
+               // $('#listtable tbody .listEdit').click(function () {
+               //     openEditForm();
+               // });
 
-                    var data = {
-                        EventID: $('#listEventID').val(),
-                        Subject: $('#listSubject').val().trim(),
-                        Description: $('#listDescription').val(),
-                        StartDate: $('#listStart').val(),
-                        EndDate: $('#listEnd').val()
-                    }
-                    SaveEvent(data);
-                });
-                function SaveEvent(data) {
-                    $.ajax({
-                        type: "POST",
-                        url: "/User/SaveEvent",
-                        data: data,
-                        success: function (data) {
-                            if (data.status) {
-                                listEvents();
-                                FetchEventAndRenderCalender();
-                                $('#listEdit').modal('hide');
-                            }
-                        },
-                        error: function () {
-                            alert('Failed');
-                        }
-                    });
-                }
-                $('#listtable tbody .listDelete').click(function () {
+               $('#listtable tbody .listEdit').click(function () {
+                    var eveId = $(this).closest('tr').attr("id");
+                   openlistEditForm(eveId);
+               });
+
+               $('#listtable tbody .listDelete').click(function () {
                     var eventId = $(this).closest('tr').attr("id");
                     if (confirm('Are you sure?') == true) {
                         $.ajax({
@@ -489,11 +446,78 @@
                             }
                         });
                     }
-                });
+               });
+                function openlistEditForm(eveId) {
+                   $. ajax({
+                        type: "POST",
+                        url: "/User/Edit",
+                        data: { 'id': eveId },
+                        success: function (events) {
+                            $('#listEventID').val(events.EventID);
+                            $('#listSubject').val(events.Subject);
+                            $('#listDescription').val(events.Description);
+                            $('#listStart').val(events.StartDateStr);
+                            $('#listEnd').val(events.EndDateStr);
 
+                            $('#listEdit').modal();
+                        },
+                        error: function () {
+                            alert('Failed');
+                        }
+                    });
+                }
+                  $('#btnEdit').click(function () {
+                      if ($('#listSubject').val().trim() == "") {
+                          alert('Subject required');
+                          return;
+                      }
+                      if ($('#listStart').val().trim() == "") {
+                          alert('Start date required');
+                          return;
+                      }
+                      if ($('#listEnd').val().trim() == "") {
+                          alert('End date required');
+                          return;
+                      }
+                      else {
+                          var startDate = moment($('#listStart').val(), "MM-DD-YYYY HH:mm a").toDate();
+                          var endDate = moment($('#listEnd').val(), "MM-DD-YYYY HH:mm a").toDate();
+                          if (startDate >= endDate) {
+                              alert('Invalid end date');
+                              return;
+                          }
+                      }
+  
+                      var data = {
+                          EventID: $('#listEventID').val(),
+                          Subject: $('#listSubject').val().trim(),
+                          Description: $('#listDescription').val(),
+                          StartDate: $('#listStart').val(),
+                          EndDate: $('#listEnd').val()
+                      }
+                      SaveEvent(data);
+                  });
+                  function SaveEvent(data) {
+                      $.ajax({
+                          type: "POST",
+                          url: "/User/SaveEvent",
+                          data: data,
+                          success: function (data) {
+                              if (data.status) {
+                                  listEvents();
+                                  FetchEventAndRenderCalender();
+                                  $('#listEdit').modal('hide');
+                              }
+                          },
+                          error: function () {
+                              alert('Failed');
+                          }
+                      });
+                  }
             }
         });
     }
+
     /*-------------------------------------------------------------*/
     /*-----------------Create Page scripts---------------------------*/
 
@@ -549,6 +573,7 @@
             success: function (createdata) {
                 if (createdata.status) {
                     FetchEventAndRenderCalender();
+                    listEvents();
                     alert("Event Created Successfully");
                     $('#ModalCreate').modal('hide');
                 }
@@ -566,6 +591,7 @@
         $('#homepg').css('display', 'none');
         $('#btnlogout').css('display', 'none');
         $('#modalLogin').css('display', 'block');
+        $('#userDetails').css('display', 'none');
       //  $('#modalLogin').modal();
         $('#loginemail').val("");
         $('#loginpass').val("");
@@ -583,5 +609,35 @@
             });
         }
     });
+/*--------------------------------------------------------------*/
+/*----------------------Forgot Password scripts----------------------------*/
+    $('#forgetpassword').click(function () {
+        $('#forgotPassword').modal();
+    });
 
+    $('#resetpass').click(function () {
+        var data = {
+            Email: $('#resetEmail').val()
+        }
+        forgotPassword(data);
+    });
+
+    function forgotPassword(data) {
+        $.ajax({
+            type: "POST",
+            url: "/User/ForgetPassword",
+            data: data,
+            success: function (data) {
+                if (data.status) {
+                    alert("The reset password link is send to you registered Email Id!!!");
+                }
+                else {
+                    alert("Incorrect Email Id!!!");
+                }
+            },
+            error: function () {
+                alert("failed");
+            }
+        });
+    }
 });

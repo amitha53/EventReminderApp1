@@ -12,7 +12,9 @@ namespace EventReminderApp1.Models
         public string Email { get; set; }
         public string Subject { get; set; }
         public string Description { get; set; }
-        public string StartDate { get; set; }
-        public string EndDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public string StartDateStr { get { return StartDate.ToString(); } }
+        public DateTime EndDate { get; set; }
+        public string EndDateStr { get { return EndDate.ToString(); } }
     }
 }

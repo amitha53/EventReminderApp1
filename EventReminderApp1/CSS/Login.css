@@ -169,7 +169,32 @@
         background: -o-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
         background: linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
     }
+.btn-reset {
+    color: #000000;
+    font-size: 14px;
+    height: auto;
+    padding: 12px 0;
+    text-transform: uppercase;
+    border-color: #ced4da;
+    border-radius: 30px;
+    width: 20%;
+    margin-left: 15%;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+    .btn-reset:hover,
+    .btn-reset:focus {
+        color: #fff;
+        background: -webkit-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
+        background: -moz-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
+        background: -o-linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
+        background: linear-gradient(90deg, #FF512F 10%, #DD2476 90%);
+    }
+
 .eventlogin_container {
     width: unset !important;
-
+}
+.linkpass{
+    margin-right: 50%
 }
