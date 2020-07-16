@@ -9,6 +9,9 @@ namespace EventReminderApp1.Models
     {
         public int UserID { get; set; }
         public string Username { get; set; }
+        public DateTime DOB { get; set; }
+        public string DOBStr { get { return DOB.ToString(); } }
+        public int Phone { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
         public string ResetPasswordCode { get; set; }

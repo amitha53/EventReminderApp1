@@ -16,15 +16,3 @@
     });
 
 });
-
-$(function () {
-    $("#registersubmit").click(function () {
-        var password = $("#txtpassword").val();
-        var confirmPassword = $("#txtconfirmpassword").val();
-        if (password != confirmPassword) {
-            alert("Passwords do not match.");
-            return false;
-        }
-        return true;
-    });
-});

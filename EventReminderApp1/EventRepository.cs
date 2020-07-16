@@ -16,19 +16,27 @@ namespace EventReminderApp1
 
         public void UserRegister(Registration register)
         {
+            var dob = register.DOB.ToString("yyyy-MM-dd");
+            string query = "insert into tblRegister(UserName,DOB,Phone,EmailId,Password)" +
+                    " values('" + register.Username + "','" + dob + "','" + register.Phone + "','" + register.Email + "','" + register.Password + "')";
+
+
+            string date = register.DOB.ToString("yyyy-MM-dd");
             con.Open();
-            string query = "Insert Into tblRegister Values(@UserName,@EmailId,@Password)";
+           // string query = "Insert Into tblRegister Values(@UserName,@DOB,@Phone,@EmailId,@Password)";
             SqlCommand cmd = new SqlCommand(query, con);
-            cmd.Parameters.AddWithValue("@UserName", register.Username);
+           /* cmd.Parameters.AddWithValue("@UserName", register.Username);
+            cmd.Parameters.AddWithValue("@DOB", date);
+            cmd.Parameters.AddWithValue("@Phone", register.Phone);
             cmd.Parameters.AddWithValue("@EmailId", register.Email);
-            cmd.Parameters.AddWithValue("@Password", register.Password);
+            cmd.Parameters.AddWithValue("@Password", register.Password);*/
             cmd.ExecuteNonQuery();
         }
         public List<string> LoginDetails(Registration login)
         {
             List<string> variables = new List<string>();
             con.Open();
-            string query = "Select UserID,EmailId,Password From tblRegister Where EmailId=@EmailId and Password=@Password";
+            string query = "Select UserID,EmailId,UserName,Password From tblRegister Where EmailId=@EmailId and Password=@Password";
             SqlCommand cmd = new SqlCommand(query, con);
             cmd.CommandType = CommandType.Text;
             cmd.Parameters.AddWithValue("@EmailId", login.Email);
@@ -43,8 +51,10 @@ namespace EventReminderApp1
                 DataRow row = datatable.Rows[0];
                 string userid = row["UserID"].ToString();
                 string mail = row["EmailId"].ToString();
+                string uname = row["UserName"].ToString();
                 variables.Add(userid);
                 variables.Add(mail);
+                variables.Add(uname);
             }
             con.Close();
             return variables;
@@ -72,9 +82,30 @@ namespace EventReminderApp1
             }
             con.Close();
             return variables;
-
         }
+        public Registration GetUserDetails(string userid)
+        {
+            string qry = "select * from tblRegister where UserID=" + userid;
+            DataRow row = GetSQLList(qry).Rows[0];
 
+            return new Registration
+            {
+                UserID = Convert.ToInt32(row.ItemArray[0]),
+                Username = row.ItemArray[1].ToString(),
+                DOB = Convert.ToDateTime(row.ItemArray[2]),
+                Phone = Convert.ToInt32(row.ItemArray[3]),
+                Email = row.ItemArray[4].ToString(),
+                Password = row.ItemArray[5].ToString()
+            };
+        }
+        public void SaveUser(Registration register, string userid)
+        {
+            var dob = register.DOB.ToString("yyyy-MM-dd HH:mm");
+            string qry = string.Empty;
+            qry = "Update tblRegister set UserName = '" + register.Username + "', DOB = '" + dob +
+                    "', Phone= '" + register.Phone + "',EmailId= '" + register.Email + "' where UserID= " + userid;
+            this.AddUpdateDeleteSQL(qry);
+        }
         public void AddEvent(Events events, string userid)
         {
             string qry = string.Empty;
@@ -89,9 +120,11 @@ namespace EventReminderApp1
         }
         public void EditEvent(Events events, string userid)
         {
+            var startdate = events.StartDate.ToString("yyyy-MM-dd HH:mm");
+            var enddate = events.EndDate.ToString("yyyy-MM-dd HH:mm");
             string qry = string.Empty;
             qry = "Update tblEvents set Subject = '" + events.Subject + "', Description = '" + events.Description +
-                    "', StartDate= '" + events.StartDate + "',EndDate= '" + events.EndDate + "' where EventID= '" + events.EventID + "' and UserID= " + userid;
+                    "', StartDate= '" + startdate + "',EndDate= '" + enddate + "' where EventID= '" + events.EventID + "' and UserID= " + userid;
             this.AddUpdateDeleteSQL(qry);
         }
 
@@ -185,5 +218,31 @@ namespace EventReminderApp1
             return mailDetails;
         }
 
+        public bool VerifyEmail(string qry)
+        {
+            DataTable datatable = GetSQLList(qry);
+            if(datatable.Rows.Count != 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public Registration GetUser (string qry)
+        {
+            DataRow row = GetSQLList(qry).Rows[0];
+            //Registration register = new Registration();
+            return new Registration
+            {
+                UserID = Convert.ToInt32(row.ItemArray[0]),
+                Username = row.ItemArray[1].ToString(),
+                Email = row.ItemArray[2].ToString(),
+                Password = row.ItemArray[3].ToString(),
+                ResetPasswordCode = row.ItemArray[3].ToString(),
+            };
+        }
     }
 }

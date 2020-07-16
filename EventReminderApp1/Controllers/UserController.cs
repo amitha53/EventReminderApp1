@@ -17,16 +17,17 @@ namespace EventReminderApp1.Controllers
     {
         // GET: User
         EventRepository eventRepository = new EventRepository();
+        const string Connectionstring = @"Data Source= LENOVO\SQLSERVER; Initial Catalog = dbwebapp; Integrated Security = True";
         // GET: User
-
+        string resetid;
         public UserController()
         {
-            Timer myTimer = new Timer();
-            myTimer.Interval = 60000;
-            myTimer.AutoReset = true;
-            myTimer.Elapsed += new ElapsedEventHandler(SendMailToUser);
-            myTimer.Enabled = true;
-          //  SendEmail("amithaunnikrishnan415@gmail.com", "Reminder", "hi");
+             Timer myTimer = new Timer();
+             myTimer.Interval = 60000;
+             myTimer.AutoReset = true;
+             myTimer.Elapsed += new ElapsedEventHandler(SendMailToUser);
+             myTimer.Enabled = true;
+            //SendEmail("amithaunnikrishnan415@gmail.com", "Reminder", "hi");
         }
 
         public ActionResult Home()
@@ -35,6 +36,7 @@ namespace EventReminderApp1.Controllers
             {
                 ViewBag.UserId = Session["UserID"];
                 ViewBag.Emaild = Session["EmailId"];
+                ViewBag.UserName = Session["UserName"];
                 return View();
             }
             return View();
@@ -51,28 +53,61 @@ namespace EventReminderApp1.Controllers
         public JsonResult Login(Registration login)
         {
             var status = false;
-              
+
             List<string> variables = eventRepository.LoginDetails(login);
 
             string userid = variables[0];
             string mail = variables[1];
-            
+            string uname = variables[2];
+
             if (variables != null)
             {
                 Session["UserID"] = userid;
                 Session["EmailId"] = mail;
+                Session["UserName"] = uname;
                 status = true;
             }
             else
             {
-
+                ViewBag.Message = "Failed";
             }
-            return new JsonResult { Data = new { status = status } };
+            return new JsonResult { Data = new { status = status, Username = uname } };
         }
         [HttpPost]
         public JsonResult GoogleLogin(string email, string name, string gender, string lastname, string location)
         {
             var status = false;
+            using (SqlConnection con = new SqlConnection(Connectionstring))
+            {
+                string qry;
+                con.Open();
+                string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.CommandType = CommandType.Text;
+
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                DataTable datatable = new DataTable();
+                sda.Fill(datatable);
+                if (datatable.Rows.Count == 1)
+                {
+                    DataRow row = datatable.Rows[0];
+                    Session["UserID"] = row["UserID"].ToString();
+                    Session["EmailId"] = row["EmailId"].ToString();
+                    //Session["userid"] = uid;
+                    // Session["email"] = mail;
+
+                    status = true;
+                }
+                else
+                {
+                    qry = "insert into tblRegister(UserName,EmailId)" +
+                    " values('" + name + "','" + email + "')";
+                    eventRepository.AddUpdateDeleteSQL(qry);
+                    status = true;
+                }
+            }
+            return new JsonResult { Data = new { status = status } };
+            /*var status = false;
             string qry;
             string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
             List<string> variables = eventRepository.GoogleLoginDetails(query);
@@ -92,33 +127,86 @@ namespace EventReminderApp1.Controllers
                 eventRepository.AddUpdateDeleteSQL(qry);
                 status = true;
             }
-               
-            return new JsonResult { Data = new { status = status } };
+
+            return new JsonResult { Data = new { status = status } };*/
         }
 
         public JsonResult FacebookLogin(string email, string name)
         {
             var status = false;
-            string qry;
-            string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
-            List<string> variables = eventRepository.GoogleLoginDetails(query);
-            string userid = variables[0];
-            string mail = variables[1];
-
-            if (variables != null)
+            using (SqlConnection con = new SqlConnection(Connectionstring))
             {
-                Session["UserID"] = userid;
-                Session["EmailId"] = mail;
-                status = true;
-            }
-            else
-            {
-                qry = "insert into tblRegister(UserName,EmailId)" +
-                                    " values('" + name + "','" + email + "')";
-                eventRepository.AddUpdateDeleteSQL(qry);
-                status = true;
-            }
+                string qry;
+                con.Open();
+                string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.CommandType = CommandType.Text;
 
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                DataTable datatable = new DataTable();
+                sda.Fill(datatable);
+                if (datatable.Rows.Count == 1)
+                {
+                    DataRow row = datatable.Rows[0];
+                    Session["UserID"] = row["UserID"].ToString();
+                    Session["EmailId"] = row["EmailId"].ToString();
+                    //Session["userid"] = uid;
+                    // Session["email"] = mail;
+
+                    status = true;
+                }
+                else
+                {
+                    qry = "insert into tblRegister(UserName,EmailId)" +
+                    " values('" + name + "','" + email + "')";
+                    eventRepository.AddUpdateDeleteSQL(qry);
+                    status = true;
+                }
+            }
+            return new JsonResult { Data = new { status = status } };
+            /* var status = false;
+             string qry;
+             string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
+             if (Session["UserID"] != null)
+             {
+                 List<string> variables = eventRepository.GoogleLoginDetails(query);
+                 string userid = variables[0];
+                 string mail = variables[1];
+
+                 if (variables != null)
+                 {
+                     Session["UserID"] = userid;
+                     Session["EmailId"] = mail;
+                     status = true;
+                 }
+                 else
+                 {
+                     status = false;
+                 }
+             }
+             else
+             {
+                 qry = "insert into tblRegister(UserName,EmailId)" +
+                                     " values('" + name + "','" + email + "')";
+                 eventRepository.AddUpdateDeleteSQL(qry);
+                 status = true;
+             }
+
+             return new JsonResult { Data = new { status = status } };*/
+        }
+        public JsonResult UserDetails()
+        {
+            string userid = Session["UserID"].ToString();
+            Registration register = eventRepository.GetUserDetails(userid);
+            return new JsonResult { Data = register, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+
+        }
+        [HttpPost]
+        public JsonResult SaveUserDetails(Registration register)
+        {
+            string userid = Session["UserID"].ToString();
+            eventRepository.SaveUser(register, userid);
+            var status = true;
             return new JsonResult { Data = new { status = status } };
         }
         public JsonResult GetEvents()
@@ -140,8 +228,8 @@ namespace EventReminderApp1.Controllers
         [HttpPost]
         public JsonResult SaveEvent(Events events)
         {
-            string userid = Session["UserID"].ToString();  
-            eventRepository.EditEvent(events,userid);
+            string userid = Session["UserID"].ToString();
+            eventRepository.EditEvent(events, userid);
             var status = true;
             return new JsonResult { Data = new { status = status } };
         }
@@ -167,10 +255,10 @@ namespace EventReminderApp1.Controllers
         {
             Session.Clear();
             var status = true;
-            return new JsonResult { Data = new { status = status },JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            return new JsonResult { Data = new { status = status }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
-       public void SendMailToUser(object sender, EventArgs e)
+        public void SendMailToUser(object sender, EventArgs e)
         {
             bool status = false;
 
@@ -213,7 +301,7 @@ namespace EventReminderApp1.Controllers
             }
 
         }
-       /* public void SendResetPasswordLinkEmail(string toEmail, string activationCode)
+        public void SendResetPasswordLinkEmail(string toEmail, string activationCode)
         {
             var verifyUrl = "/User/ResetPassword/" + activationCode;
             var link = Request.Url.AbsoluteUri.Replace(Request.Url.PathAndQuery, verifyUrl);
@@ -236,8 +324,63 @@ namespace EventReminderApp1.Controllers
             client.Send(mailMessage);
 
             return;
-        }*/
+        }
 
 
+        [HttpPost]
+        public JsonResult ForgetPassword(string email)
+        {
+            string qry;
+            var status = false;
+            string query = $"Select EmailId from tblRegister where EmailId='{email}' ";
+            bool verify = eventRepository.VerifyEmail(query);
+            if (verify)
+            {
+                string resetCode = Guid.NewGuid().ToString();
+                SendResetPasswordLinkEmail(email, resetCode);
+                qry = $"Update tblRegister set ResetPasswordCode='{resetCode}' where EmailId='{email}'";
+                eventRepository.AddUpdateDeleteSQL(qry);
+                status = true;
+                return new JsonResult { Data = new { status = status } };
+            }
+            else
+            {
+                return new JsonResult { Data = new { status = status } };
+            }
+        }
+        public ActionResult ResetPassword(string id)
+        {
+            //resetid = id;
+            string qry = $"Select * from tblRegister where ResetPasswordCode= '{id}' ";
+            var user = eventRepository.GetUser(qry);
+            if (user != null)
+            {
+                ResetPasswordModel resetPasswordModel = new ResetPasswordModel();
+                resetPasswordModel.ResetCode = id;
+                return View(resetPasswordModel);
+            }
+            else
+            {
+                return HttpNotFound();
+            }
+        }
+        [HttpPost]
+        public ActionResult ResetPassword(ResetPasswordModel resetPasswordModel)
+        {
+            string qry = $"Select * from tblRegister where ResetPasswordCode= '{resetPasswordModel.ResetCode}' ";
+            var user = eventRepository.GetUser(qry);
+            if(user != null)
+            {
+                string query = "update tblRegister set Password = '" + resetPasswordModel.NewPassword + "' where ResetPasswordCode ='" + resetPasswordModel.ResetCode + "'";
+                eventRepository.AddUpdateDeleteSQL(query);
+                string query2 = "update tblRegister set ResetPasswordCode = '" + "" + "' where ResetPasswordCode ='" + resetPasswordModel.ResetCode + "'";
+                ViewBag.Message = "Password updated successfully";
+            }
+            else
+            {
+                ViewBag.Message = "Failed";
+            }
+            return View(resetPasswordModel);
+        }
     }
 }

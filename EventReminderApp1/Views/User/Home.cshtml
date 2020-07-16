@@ -31,23 +31,25 @@
     <script src="~/Scripts/Home.js"></script>
 </head>
 <body>
+
     @if (ViewBag.UserId != null && ViewBag.Emaild != null)
     {
         <input type="hidden" class="form-control" id="sessionUserId" value="@ViewBag.UserId" />
         <input type="hidden" class="form-control" id="sessionEmailId" value="@ViewBag.Emaild" />
+        <input type="hidden" class="form-control" id="sessionUsername" value="@ViewBag.UserName" />
     }
-<header class="header">
-    <h2>
-        Event Reminder
-        <!--button id="userDetails" class="btn btn-default btn-lg pull-left" style="margin-left:5px;">
-        See User Details
-    </!-button
-        <button id="userName" class="btn btn-default btn-lg pull-left" style="margin-left:5px;"></button>-->
-        <button id="btnlogout" class="btn btn-default btn-lg pull-right" style="margin-right:5px;">
-            Logout
-        </button>
-    </h2>
-</header>
+    <header class="header">
+        <label class="welcomeuser pull-left" id="userWelcome">
+            Welcome
+            <a class="underlineHover" id="user" style="color: white;"></a>
+        </label>
+        <h2>
+            Event Reminder
+            <button id="btnlogout" class="btn btn-default btn-lg pull-right" style=" margin: -9px 14px;">
+                Logout
+            </button>
+        </h2>
+    </header>
     <!------------Login Page-------------->
     <!-- Signin & Signup-->
     <div id="modalLogin" role="dialog">
@@ -118,22 +120,58 @@
                                                         </div>
                                                     </form>
                                                     <form action="@Url.Action("Register")" id="register-form" method="post" style="display: none;">
-                                                        <div class="form-group">
-                                                            <input type="text" name="username" id="reguserName" class="form-control" placeholder="Username" value="" required>
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <label class="labelwrap required" style="margin-top:22px;">Username</label>
+                                                            </div>
+                                                            <div class="col-md-9">
+                                                                <input type="text" name="username" id="reguserName" class="textwrap" placeholder="Username" maxlength="45" value="" required>
+                                                            </div>
                                                         </div>
-                                                        <div class="form-group">
-                                                            <input type="email" name="email" id="emailreg" class="form-control" placeholder="Email Address" value="" required>
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <label class="labelwrap">Date of Birth</label>
+                                                            </div>
+                                                            <div class="col-md-9">
+                                                                <input type="date" name="dob" id="regdob" class="textwrap" value="">
+                                                            </div>
                                                         </div>
-                                                        <div class="form-group">
-                                                            <input type="password" name="password" id="regPass" class="form-control" placeholder="Password" required>
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <label class="labelwrap required">Phone</label>
+                                                            </div>
+                                                            <div class="col-md-9">
+                                                                <input type="text" name="phone" id="regphone" class="textwrap" placeholder="Phone Number" value="">
+                                                            </div>
                                                         </div>
-                                                        <div class="form-group">
-                                                            <input type="password" name="confirm-password" id="regConfirmPass" class="form-control" placeholder="Confirm Password" required>
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <label class="labelwrap required">Email</label>
+                                                            </div>
+                                                            <div class="col-md-9">
+                                                                <input type="email" name="email" id="emailreg" class="textwrap" placeholder="Email Address" value="" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <label class="labelwrap required">Password</label>
+                                                            </div>
+                                                            <div class="col-md-9">
+                                                                <input type="password" name="password" id="regPass" class="textwrap" placeholder="Password" maxlength="10" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <label class="labelwrapper required">Confirm Password</label>
+                                                            </div>
+                                                            <div class="col-md-9">
+                                                                <input type="password" name="confirm-password" id="regConfirmPass" class="textwrap" placeholder="Confirm Password" maxlength="45" required>
+                                                            </div>
                                                         </div>
                                                         <div class="form-group">
                                                             <div class="row">
                                                                 <div class="col-sm-6 col-sm-offset-3">
-                                                                    <input type="button" name="registerSubmit" id="registersubmit" class="form-control btn btn-register" value="Register">
+                                                                    <input type="button" name="registerSubmit" id="registersubmit" class="form-control btn btn-login" value="Register">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -164,10 +202,10 @@
             <!-- Nav tabs -->
             <ul class="nav nav-tabs">
                 <li class="active">
-                    <a data-toggle="tab" href="#calview">Calendar View</a>
+                    <a data-toggle="tab" href="#calview" class="textform">Calendar View</a>
                 </li>
                 <li>
-                    <a data-toggle="tab" href="#indexview">List View</a>
+                    <a data-toggle="tab" href="#indexview" class="textform">List View</a>
                 </li>
             </ul>
 
@@ -206,7 +244,7 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    <h4 class="modal-title">Edit Event</h4>
+                                    <h4 class="modal-title" style="margin-left: 40%;">Edit Event</h4>
                                 </div>
                                 <div class="container content">
                                     <div class="form">
@@ -224,7 +262,7 @@
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-2">
-                                                        <label class="label-wrapper" style="margin-top:22px;">Subject :</label>
+                                                        <label class="label-wrapper required" style="margin-top:22px;">Subject</label>
                                                     </div>
                                                     <div class="col-md-9">
                                                         <input type="text" name="subject" id="calSubject" class="text-wrapper" style="margin-top:15px;" placeholder="Subject" required>
@@ -232,7 +270,7 @@
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-2">
-                                                        <label class="label-wrapper">Description :</label>
+                                                        <label class="label-wrapper">Description</label>
                                                     </div>
                                                     <div class="col-md-9">
                                                         <input type="text" class="text-wrapper" id="calDescription" name="description" maxlength="45" placeholder="Description" required />
@@ -240,7 +278,7 @@
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-2">
-                                                        <label class="label-wrapper">Start Date :</label>
+                                                        <label class="label-wrapper required">Start Date</label>
                                                     </div>
                                                     <div class="col-md-9">
                                                         <input type="text" class="text-wrapper" id="calStart" name="startdate" required />
@@ -248,7 +286,7 @@
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-2">
-                                                        <label class="label-wrapper">End Date :</label>
+                                                        <label class="label-wrapper required">End Date</label>
                                                     </div>
                                                     <div class="col-md-9">
                                                         <input type="text" class="text-wrapper" id="calEnd" name="enddate" required />
@@ -274,11 +312,11 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>EventID</th>
+                                    <th>Event ID</th>
                                     <th>Subject</th>
                                     <th>Description</th>
-                                    <th>StartDate</th>
-                                    <th>EndDate</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -288,7 +326,7 @@
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                        <h4 class="modal-title">Edit Event</h4>
+                                        <h4 class="modal-title" style="margin-left: 40%;">Edit Event</h4>
                                     </div>
                                     <div class="container content">
                                         <div class="form">
@@ -306,7 +344,7 @@
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-2">
-                                                            <label class="label-wrapper" style="margin-top:22px;">Subject :</label>
+                                                            <label class="label-wrapper required" style="margin-top:22px;">Subject</label>
                                                         </div>
                                                         <div class="col-md-9">
                                                             <input type="text" name="subject" id="listSubject" class="text-wrapper" style="margin-top:15px;" placeholder="Subject" required>
@@ -314,7 +352,7 @@
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-2">
-                                                            <label class="label-wrapper">Description :</label>
+                                                            <label class="label-wrapper">Description</label>
                                                         </div>
                                                         <div class="col-md-9">
                                                             <input type="text" class="text-wrapper" id="listDescription" name="description" maxlength="45" placeholder="Description" required />
@@ -322,7 +360,7 @@
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-2">
-                                                            <label class="label-wrapper">Start Date :</label>
+                                                            <label class="label-wrapper required">Start Date</label>
                                                         </div>
                                                         <div class="col-md-9">
                                                             <input type="text" class="text-wrapper" id="listStart" name="startdate" required />
@@ -330,7 +368,7 @@
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-2">
-                                                            <label class="label-wrapper">End Date :</label>
+                                                            <label class="label-wrapper required">End Date</label>
                                                         </div>
                                                         <div class="col-md-9">
                                                             <input type="text" class="text-wrapper" id="listEnd" name="enddate" required />
@@ -360,7 +398,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Create Event</h4>
+                        <h4 class="modal-title" style="margin-left: 40%;">Create Event</h4>
                     </div>
                     <div class="container content">
                         <div class="form">
@@ -378,7 +416,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-2">
-                                            <label class="label-wrapper" style="margin-top:22px;">Subject :</label>
+                                            <label class="label-wrapper required" style="margin-top:22px;">Subject</label>
                                         </div>
                                         <div class="col-md-9">
                                             <input type="text" name="subject" id="crteSubject" class="text-wrapper" style="margin-top:15px;" placeholder="Subject" required>
@@ -386,7 +424,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-2">
-                                            <label class="label-wrapper">Description :</label>
+                                            <label class="label-wrapper">Description</label>
                                         </div>
                                         <div class="col-md-9">
                                             <input type="text" class="text-wrapper" id="crteDescription" name="description" maxlength="45" placeholder="Description" required />
@@ -394,7 +432,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-2">
-                                            <label class="label-wrapper">Start Date :</label>
+                                            <label class="label-wrapper required">Start Date</label>
                                         </div>
                                         <div class="col-md-9">
                                             <input type="datetime-local" class="text-wrapper" id="crteStart" name="startdate" placeholder="dd-mm-yyyy h:mm a" required />
@@ -402,7 +440,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-2">
-                                            <label class="label-wrapper">End Date :</label>
+                                            <label class="label-wrapper required">End Date</label>
                                         </div>
                                         <div class="col-md-9">
                                             <input type="datetime-local" class="text-wrapper" id="crteEnd" name="enddate" placeholder="dd-mm-yyyy h:mm a" required />
@@ -428,7 +466,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Forgot Password</h4>
+                        <h4 class="modal-title" style="margin-left: 40%;">Forgot Password</h4>
                     </div>
                     <div class="container content">
                         <div class="form">
@@ -447,6 +485,68 @@
                                 </div>
                             </form>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--------------------------------------------->
+    <!---------------User Profile-------------->
+    <div id="userProfile" class="modal fade" role="dialog">
+        <div class="create-align">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title" style="margin-left: 40%;">User Profile</h4>
+                    </div>
+                    <div class="container content">
+                        <div class="form">
+                            <form method="POST">
+                                <div class="form-content">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <input type="hidden" id="upUserID" name="UserID" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <label class="label-wrapper required" style="margin-top:22px;">Username :</label>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <input type="text" name="Username" id="upUsername" class="text-wrapper" style="margin-top:15px;" placeholder="Username" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <label class="label-wrapper">DOB :</label>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <input type="text" class="text-wrapper" id="upDob" name="DOB" maxlength="45" placeholder="DOB" required />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <label class="label-wrapper required">Phone :</label>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <input type="text" class="text-wrapper" id="upPhone" name="Phone" placeholder="Phone" required />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <label class="label-wrapper required">Email :</label>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <input type="email" class="text-wrapper" id="upEmail" name="Email" placeholder="Email" required />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="btnUserSave" class="btn btn-default buttonsave pull-left">Save</button>
                     </div>
                 </div>
             </div>

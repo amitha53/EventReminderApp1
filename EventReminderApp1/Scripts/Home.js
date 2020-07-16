@@ -1,4 +1,5 @@
-﻿$(document).ready(function () {
+﻿
+$(document).ready(function () {
    
     var events = [];
     var eventSelected = null;
@@ -20,21 +21,73 @@
     $('#homepg').css('display', 'none');
     $('#btnlogout').css('display', 'none');
     $('#userDetails').css('display', 'none');
+    $('#userWelcome').css('display', 'none');
 
     if ($('#sessionUserId').val() != null && $('#sessionEmailId').val() != null) {
         $('#modalLogin').hide();
         $('#homepg').css('display', 'block');
         $('#btnlogout').css('display', 'block');
         $('#userDetails').css('display', 'block');
+        $('#userWelcome').css('display', 'block');
+        var uname = $('#sessionUsername').val();
+        $('#user').text(uname);
         FetchEventAndRenderCalender();
         listEvents();
     }
     /*-------------------------Login scripts-----------------------*/
+    $('#register-form-link').click(function () {
+        $('#reguserName').val("");
+        $('#regdob').val("");
+        $('#regphone').val("");
+        $('#emailreg').val("");
+        $('#regPass').val("");
+        $('#regConfirmPass').val("");
+    });
 
     $('#registersubmit').click(function () {
+        if ($('#reguserName').val().trim() == "") {
+            alert('Enter your UserName');
+            return;
+        }
+        if ($('#regphone').val().trim() == "") {
+            alert('Enter your Phone');
+            return;
+        }
+        var phone = $('#regphone').val();
+            intRegex = /[0-9 -()+]+$/;
+        if ((phone.length < 6) || (!intRegex.test(phone))) {
+            alert('Please enter a valid phone number.');
+            return false;
+        }
+        if ($('#emailreg').val().trim() == "") {
+            alert('Enter your EmailID');
+            return;
+        }
+        var email = $('#emailreg').val();
+        var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        if (!regex.test(email)) {
+            alert('Invalid Email Address!!!');
+            return false;
+        }
+        if ($('#regPass').val().trim() == "") {
+            alert('Enter your Password');
+            return;
+        }
+        if ($('#regConfirmPass').val().trim() == "") {
+            alert('Re-Enter your Password');
+            return;
+        }
+        var password = $("#regPass").val();
+        var confirmPassword = $("#regConfirmPass").val();
+        if (password != confirmPassword) {
+            alert("Passwords do not match!!!");
+            return false;
+        }
         var regdata = {
             //UserID: $('#reguserId').val(),
             Username: $('#reguserName').val(),
+            DOB: $('#regdob').val(),
+            Phone: $('#regphone').val(),
             Email: $('#emailreg').val(),
             Password: $('#regPass').val(),
         }
@@ -49,7 +102,6 @@
             success: function (data) {
                 if (data.status) {
                     alert("Registered Successfully");
-                    $('#modalLogin').modal();
                 }
             },
             error: function () {
@@ -63,6 +115,13 @@
             alert('Enter your EmailID');
             return;
         }
+        var email = $('#loginemail').val();
+        var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        if (!regex.test(email)) {
+            alert('Invalid Email Address!!!');
+            return false;
+        }
+
         if ($('#loginpass').val().trim() == "") {
             alert('Enter your Password');
             return;
@@ -80,13 +139,14 @@
             data: logindata,
             success: function (data) {
                 if (data.status) {
-                    $('#modalLogin').hide();
+                    $('#modalLogin').css('display', 'none');
                     $('#homepg').css('display', 'block');
                     $('#btnlogout').css('display', 'block');
                     $('#userDetails').css('display', 'block');
+                    $('#userWelcome').css('display', 'block');
+                    $('#user').text(data.Username);
                     FetchEventAndRenderCalender();
                     listEvents();
-                    //$('#modalLogin').modal('hide');
                 }
 
             },
@@ -170,25 +230,37 @@
                 location: user.location
             },
             success: function (data) {
-                $('#modalLogin').hide();
+                $('#modalLogin').css('display', 'none');
                 $('#homepg').css('display', 'block');
                 $('#btnlogout').css('display', 'block');
                 $('#userDetails').css('display', 'block');
+                $('#userWelcome').css('display', 'block');
+                $('#user').text(user.name);
                 FetchEventAndRenderCalender();
                 listEvents();
             },
         });
     }
     /*-----------------------------------------------------*/
-    /*------------Facebook Login scripts-------------------*/
+/*------------Facebook Login scripts-------------------*/
+
+    // Load the JavaScript SDK asynchronously
+    (function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
     $('#btnfacebookLogin').click(function () {
         fbLogin();
     });
-
+    
     window.fbAsyncInit =function () {
         // FB JavaScript SDK configuration and setup
         FB.init({
-            appId: '716414535588804', // FB App ID
+            appId: '587750735263059', // FB App ID
             cookie: true,  // enable cookies to allow the server to access the session
             xfbml: true,  // parse social plugins on this page
             version: 'v3.2' // use graph api version 2.8
@@ -203,14 +275,7 @@
         });
     };
 
-    // Load the JavaScript SDK asynchronously
-    (function (d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = "//connect.facebook.net/en_US/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
+   
 
     // Facebook login with JavaScript SDK
     function fbLogin() {
@@ -239,13 +304,15 @@
             type: 'POST',
             data: {
                 email: fbuser.email,
-                name: fbuser.name,
+                name: fbuser.first_name,
             },
             success: function (data) {
-                $('#modalLogin').hide();
+                $('#modalLogin').css('display', 'none');
                 $('#homepg').css('display', 'block');
                 $('#btnlogout').css('display', 'block');
                 $('#userDetails').css('display', 'block');
+                $('#userWelcome').css('display', 'block');
+                $('#user').text(fbuser.first_name);
                 FetchEventAndRenderCalender();
                 listEvents();
             },
@@ -300,14 +367,36 @@
                 eventSelected = calEvent;
                 $('#myModal #eventTitle').text(calEvent.title);
                 var $description = $('<div/>');
-                $description.append($('<p/>').html('<b>Start Date:</b>' + calEvent.start.format("DD-MMM-YYYY HH:mm a")));
+                $description.append($('<p/>').html('<b>Start Date:</b>' + calEvent.start.format("DD-MM-YYYY HH:mm a")));
                 if (calEvent.end != null) {
-                    $description.append($('<p/>').html('<b>End Date:</b>' + calEvent.end.format("DD-MMM-YYYY HH:mm a")));
+                    $description.append($('<p/>').html('<b>End Date:</b>' + calEvent.end.format("DD-MM-YYYY HH:mm a")));
                 }
                 $description.append($('<p/>').html('<b>Description:</b>' + calEvent.description));
                 $('#myModal #pDetails').empty().html($description);
                 $('#myModal').modal();
-
+            },
+            selectable: true,
+            select: function (start, end) {
+                selectedEvent = {
+                    eventID: 0,
+                    title: '',
+                    description: '',
+                    start: start,
+                    end: end,
+                };
+                openCreateFrorm();
+                $('#calender').fullCalendar('unselect');
+            },
+            editable: true,
+            eventDrop: function (events) {
+                var data = {
+                    EventID: events.eventID,
+                    Subject: events.title,
+                    Description: events.description,
+                    StartDate: events.start.format("DD-MM-YYYY HH:mm a"),
+                    EndDate: events.end.format("DD-MM-YYYY HH:mm a"),
+                };
+                SaveEvent(data);
             }
         })
     }
@@ -322,8 +411,8 @@
             // $('#hdUserID').val(eventSelected.userID);
             $('#calSubject').val(eventSelected.title);
             $('#calDescription').val(eventSelected.description);
-            $('#calStart').val(eventSelected.start.format("MM-DD-YYYY HH:mm a"));
-            $('#calEnd').val(eventSelected.end.format("MM-DD-YYYY HH:mm a"));
+            $('#calStart').val(eventSelected.start.format("DD-MM-YYYY HH:mm a"));
+            $('#calEnd').val(eventSelected.end.format("DD-MM-YYYY HH:mm a"));
         }
         $('#myModal').modal('hide');
         $('#ModalEdit').modal();
@@ -343,10 +432,10 @@
             return;
         }
         else {
-            var startDate = moment($('#calStart').val(), "MM-DD-YYYY HH:mm a").toDate();
-            var endDate = moment($('#calEnd').val(), "MM-DD-YYYY HH:mm a").toDate();
+            var startDate = moment($('#calStart').val(), "DD-MM-YYYY HH:mm a").toDate();
+            var endDate = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
             if (startDate >= endDate) {
-                alert('Invalid end date');
+                alert('Start date should not be greater than End date!!!');
                 return;
             }
         }
@@ -368,6 +457,7 @@
             data: editdata,
             success: function (data) {
                 if (data.status) {
+                    alert("Events updated successfully");
                     FetchEventAndRenderCalender();
                     listEvents();
                     $('#ModalEdit').modal('hide');
@@ -387,9 +477,11 @@
                 data: { 'eventID': eventSelected.eventID },
                 success: function (data) {
                     if (data.status) {
+                        alert("Event deleted!!!");
                         FetchEventAndRenderCalender();
                         listEvents();
                         $('#myModal').modal('hide');
+                        
                     }
                 },
                 error: function () {
@@ -437,6 +529,7 @@
                             url: "/User/DeleteEvent",
                             data: { 'eventID': eventId },
                             success: function (data) {
+                                alert("Event deleted!!!");
                                 $("#" + eventId).remove();
                                 listEvents();
                                 FetchEventAndRenderCalender();
@@ -480,10 +573,10 @@
                           return;
                       }
                       else {
-                          var startDate = moment($('#listStart').val(), "MM-DD-YYYY HH:mm a").toDate();
-                          var endDate = moment($('#listEnd').val(), "MM-DD-YYYY HH:mm a").toDate();
+                          var startDate = moment($('#listStart').val(), "DD-MM-YYYY HH:mm a").toDate();
+                          var endDate = moment($('#listEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
                           if (startDate >= endDate) {
-                              alert('Invalid end date');
+                              alert('Start date should not be greater than End date!!!');
                               return;
                           }
                       }
@@ -504,6 +597,7 @@
                           data: data,
                           success: function (data) {
                               if (data.status) {
+                                  alert("Events updated successfully");
                                   listEvents();
                                   FetchEventAndRenderCalender();
                                   $('#listEdit').modal('hide');
@@ -551,7 +645,7 @@
             var startDate = moment($('#crteStart').val(), "DD-MM-YYYY HH:mm a").toDate();
             var endDate = moment($('#crteEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
             if (startDate >= endDate) {
-                alert('Invalid end date');
+                alert('Start date should not be greater than End date!!!');
                 return;
             }
         }
@@ -588,20 +682,22 @@
 
     $('#btnlogout').click(function () {
         logout();
-        $('#homepg').css('display', 'none');
-        $('#btnlogout').css('display', 'none');
-        $('#modalLogin').css('display', 'block');
-        $('#userDetails').css('display', 'none');
-      //  $('#modalLogin').modal();
-        $('#loginemail').val("");
-        $('#loginpass').val("");
 
         function logout() {
             $.ajax({
                 type: "GET",
                 url: "/User/Logout",
                 success: function (data) {
-
+                    if (confirm('Are you sure?') == true && data.status) {
+                        $('#homepg').css('display', 'none');
+                        $('#btnlogout').css('display', 'none');
+                        $('#modalLogin').css('display', 'block');
+                        $('#userDetails').css('display', 'none');
+                        $('#userWelcome').css('display', 'none');
+                        //  $('#modalLogin').modal();
+                        $('#loginemail').val("");
+                        $('#loginpass').val("");
+                    }
                 },
                 error: function () {
                     alert('Failed');
@@ -630,6 +726,7 @@
             success: function (data) {
                 if (data.status) {
                     alert("The reset password link is send to you registered Email Id!!!");
+                    $('#forgotPassword').modal('hide');
                 }
                 else {
                     alert("Incorrect Email Id!!!");
@@ -637,6 +734,73 @@
             },
             error: function () {
                 alert("failed");
+            }
+        });
+    }
+/*--------------------------------------------------------------*/
+/*----------------------User Profile scripts----------------------------*/
+    $('#user').click(function () {
+        openEditProfileForm();
+    });
+    function openEditProfileForm() {
+        $.ajax({
+            type: "POST",
+            url: "/User/UserDetails",
+            success: function (data) {
+                var userdetails = data;
+                $('#upUserID').val(userdetails.UserID);
+                $('#upUsername').val(userdetails.Username);
+                $('#upDob').val(userdetails.DOBStr);
+                $('#upPhone').val(userdetails.Phone);
+                $('#upEmail').val(userdetails.Email);
+                $('#userProfile').modal();
+
+                console.log(userdetails);
+            },
+            error: function () {
+                alert('Failed');
+            }
+        });
+    }
+
+    $('#btnUserSave').click(function () {
+        if ($('#upUsername').val().trim() == "") {
+            alert('Username required');
+            return;
+        }
+        if ($('#upPhone').val().trim() == "") {
+            alert('Phone number required');
+            return;
+        }
+        if ($('#upEmail').val().trim() == "") {
+            alert('Email required');
+            return;
+        }
+
+        var edituserdata = {
+           // UserID: $('#upUserID').val(),
+            Username: $('#upUsername').val().trim(),
+            DOB: $('#upDob').val(),
+            Phone: $('#upPhone').val(),
+            Email: $('#upEmail').val()
+        }
+        SaveUserEvent(edituserdata);
+    });
+    function SaveUserEvent(edituserdata) {
+        $.ajax({
+            type: "POST",
+            url: "/User/SaveUserDetails",
+            data: edituserdata,
+            success: function (data) {
+                if (data.status) {
+                    alert("User Details saved successfully");
+                    FetchEventAndRenderCalender();
+                    listEvents();
+                    $('#userProfile').modal('hide');
+                }
+            },
+            error: function () {
+                alert('Failed');
             }
         });
     }
