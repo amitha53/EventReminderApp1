@@ -83,21 +83,41 @@ namespace EventReminderApp1
             con.Close();
             return variables;
         }
-        public Registration GetUserDetails(string userid)
-        {
-            string qry = "select * from tblRegister where UserID=" + userid;
-            DataRow row = GetSQLList(qry).Rows[0];
+         public Registration GetUserDetails(string userid)
+         {
+             string qry = "select * from tblRegister where UserID=" + userid;
+             DataRow row = GetSQLList(qry).Rows[0];
 
-            return new Registration
-            {
-                UserID = Convert.ToInt32(row.ItemArray[0]),
-                Username = row.ItemArray[1].ToString(),
-                DOB = Convert.ToDateTime(row.ItemArray[2]),
-                Phone = Convert.ToInt32(row.ItemArray[3]),
-                Email = row.ItemArray[4].ToString(),
-                Password = row.ItemArray[5].ToString()
-            };
+             return new Registration
+             {
+                 UserID = Convert.ToInt32(row.ItemArray[0]),
+                 Username = row.ItemArray[1].ToString(),
+                 DOB = Convert.ToDateTime(row.ItemArray[2]),
+                 Phone = Convert.ToInt32(row.ItemArray[3]),
+                 Email = row.ItemArray[4].ToString(),
+                 Password = row.ItemArray[5].ToString()
+             };
+         }
+        /* public Registration Get_User(string qry)
+        {            
+            DataRow row = GetSQLList(qry).Rows[0];
+            Registration registration = new Registration();
+            //return new Registration
+            //{               
+            registration.UserId = Convert.ToInt32(row["UserId"]);
+            registration.UserName = row["UserName"].ToString();
+            registration.Email = row["Email"].ToString();
+            registration.Password = row["Password"].ToString();
+            registration.ResetPasswordCode = row["ResetPasswordCode"].ToString();
+            registration.DOB = Convert.ToDateTime(string.IsNullOrEmpty(row["DOB"].ToString()) ? "01-01-1111" : row["DOB"].ToString());
+            //registration.DOB = Convert.ToDateTime(string.IsNullOrEmpty(row["DOB"].ToString())? DateTime.Now.ToString(): row["DOB"].ToString());
+            registration.Phone = ((row["Phone"]) ?? "").ToString();
+            //};
+
+            return registration;
         }
+*/
+
         public void SaveUser(Registration register, string userid)
         {
             var dob = register.DOB.ToString("yyyy-MM-dd HH:mm");

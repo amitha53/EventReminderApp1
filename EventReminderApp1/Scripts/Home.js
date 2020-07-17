@@ -148,6 +148,9 @@ $(document).ready(function () {
                     FetchEventAndRenderCalender();
                     listEvents();
                 }
+                else {
+                    alert("Invalid Email Id or password!!!!", "Failed");
+                }
 
             },
             error: function () {
@@ -304,7 +307,7 @@ $(document).ready(function () {
             type: 'POST',
             data: {
                 email: fbuser.email,
-                name: fbuser.first_name,
+                first_name: fbuser.first_name,
             },
             success: function (data) {
                 $('#modalLogin').css('display', 'none');
@@ -411,8 +414,8 @@ $(document).ready(function () {
             // $('#hdUserID').val(eventSelected.userID);
             $('#calSubject').val(eventSelected.title);
             $('#calDescription').val(eventSelected.description);
-            $('#calStart').val(eventSelected.start.format("DD-MM-YYYY HH:mm a"));
-            $('#calEnd').val(eventSelected.end.format("DD-MM-YYYY HH:mm a"));
+            $('#calStart').val(eventSelected.start.format("DD-MM-YYYY HH:mm"));
+            $('#calEnd').val(eventSelected.end.format("DD-MM-YYYY HH:mm"));
         }
         $('#myModal').modal('hide');
         $('#ModalEdit').modal();
@@ -431,6 +434,14 @@ $(document).ready(function () {
             alert('End date required');
             return;
         }
+        var d1 = moment($('#calStart').val(), "DD-MM-YYYY HH:mm", true);
+        var d2 = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm", true);
+        console.log(d1.isValid());
+        if (d1.isValid() == false || d2.isValid() == false) {
+            alert("Invalid start or end date");
+            return;
+        }
+
         else {
             var startDate = moment($('#calStart').val(), "DD-MM-YYYY HH:mm a").toDate();
             var endDate = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
@@ -572,6 +583,14 @@ $(document).ready(function () {
                           alert('End date required');
                           return;
                       }
+                      var d1 = moment($('#calStart').val(), "DD-MM-YYYY HH:mm a", true);
+                      var d2 = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm a", true);
+                      console.log(d1.isValid());
+                      if (d1.isValid() == false || d2.isValid() == false) {
+                          alert("Invalid start or end date");
+                          return;
+                      }
+
                       else {
                           var startDate = moment($('#listStart').val(), "DD-MM-YYYY HH:mm a").toDate();
                           var endDate = moment($('#listEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
@@ -708,10 +727,18 @@ $(document).ready(function () {
 /*--------------------------------------------------------------*/
 /*----------------------Forgot Password scripts----------------------------*/
     $('#forgetpassword').click(function () {
-        $('#forgotPassword').modal();
+        openForm();
     });
 
+    function openForm() {
+        $('#resetEmail').val("");
+        $('#forgotPassword').modal();
+    }
     $('#resetpass').click(function () {
+        if ($('#resetEmail').val().trim() == "") {
+            alert('Enter your Email ID');
+            return;
+        }
         var data = {
             Email: $('#resetEmail').val()
         }
@@ -729,7 +756,7 @@ $(document).ready(function () {
                     $('#forgotPassword').modal('hide');
                 }
                 else {
-                    alert("Incorrect Email Id!!!");
+                    alert("Email Id entered is Invalid");
                 }
             },
             error: function () {
