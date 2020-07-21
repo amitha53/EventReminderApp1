@@ -41,7 +41,7 @@
     <header class="header">
         <label class="welcomeuser pull-left" id="userWelcome">
             Welcome
-            <a class="underlineHover" id="user" style="color: white;"></a>
+            <a class="underlineHover" id="user" style="color: white; text-transform: capitalize;"></a>
         </label>
         <h2>
             Event Reminder
@@ -141,7 +141,7 @@
                                                                 <label class="labelwrap required">Phone</label>
                                                             </div>
                                                             <div class="col-md-9">
-                                                                <input type="text" name="phone" id="regphone" class="textwrap" placeholder="Phone Number" value="">
+                                                                <input type="text" name="phone" id="regphone" class="textwrap" maxlength="10" placeholder="Phone Number" value="">
                                                             </div>
                                                         </div>
                                                         <div class="row">
@@ -519,7 +519,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-2">
-                                            <label class="label-wrapper">DOB :</label>
+                                            <label class="label-wrapper required">DOB :</label>
                                         </div>
                                         <div class="col-md-9">
                                             <input type="text" class="text-wrapper" id="upDob" name="DOB" maxlength="45" placeholder="DOB" required />
@@ -530,7 +530,7 @@
                                             <label class="label-wrapper required">Phone :</label>
                                         </div>
                                         <div class="col-md-9">
-                                            <input type="text" class="text-wrapper" id="upPhone" name="Phone" placeholder="Phone" required />
+                                            <input type="text" class="text-wrapper" id="upPhone" name="Phone" maxlength="10" placeholder="Phone" required />
                                         </div>
                                     </div>
                                     <div class="row">

@@ -14,23 +14,32 @@ namespace EventReminderApp1
 
         SqlConnection con = new SqlConnection(Connectionstring);
 
-        public void UserRegister(Registration register)
+        public List<string> UserRegister(Registration register)
         {
-            var dob = register.DOB.ToString("yyyy-MM-dd");
-            string query = "insert into tblRegister(UserName,DOB,Phone,EmailId,Password)" +
-                    " values('" + register.Username + "','" + dob + "','" + register.Phone + "','" + register.Email + "','" + register.Password + "')";
-
-
-            string date = register.DOB.ToString("yyyy-MM-dd");
+            List<string> variables = new List<string>();
             con.Open();
-           // string query = "Insert Into tblRegister Values(@UserName,@DOB,@Phone,@EmailId,@Password)";
+            string query = "Select UserID,EmailId,UserName,Password From tblRegister Where EmailId=@EmailId";
             SqlCommand cmd = new SqlCommand(query, con);
-           /* cmd.Parameters.AddWithValue("@UserName", register.Username);
-            cmd.Parameters.AddWithValue("@DOB", date);
-            cmd.Parameters.AddWithValue("@Phone", register.Phone);
+            cmd.CommandType = CommandType.Text;
             cmd.Parameters.AddWithValue("@EmailId", register.Email);
-            cmd.Parameters.AddWithValue("@Password", register.Password);*/
-            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter sda = new SqlDataAdapter(cmd);
+            DataTable datatable = new DataTable();
+            sda.Fill(datatable);
+
+            if (datatable.Rows.Count == 1)
+            {
+                DataRow row = datatable.Rows[0];
+                string userid = row["UserID"].ToString();
+                string mail = row["EmailId"].ToString();
+                string uname = row["UserName"].ToString();
+                variables.Add(userid);
+                variables.Add(mail);
+                variables.Add(uname);
+            }
+            con.Close();
+            return variables;
+
         }
         public List<string> LoginDetails(Registration login)
         {
@@ -77,13 +86,15 @@ namespace EventReminderApp1
                 DataRow row = datatable.Rows[0];
                 string userid = row["UserID"].ToString();
                 string mail = row["EmailId"].ToString();
+                string uname = row["UserName"].ToString();
                 variables.Add(userid);
                 variables.Add(mail);
+                variables.Add(uname);
             }
             con.Close();
             return variables;
         }
-         public Registration GetUserDetails(string userid)
+        /* public Registration GetUserDetails(string userid)
          {
              string qry = "select * from tblRegister where UserID=" + userid;
              DataRow row = GetSQLList(qry).Rows[0];
@@ -97,35 +108,26 @@ namespace EventReminderApp1
                  Email = row.ItemArray[4].ToString(),
                  Password = row.ItemArray[5].ToString()
              };
-         }
-        /* public Registration Get_User(string qry)
+         }*/
+         public Registration GetUserDetails(string qry)
         {            
             DataRow row = GetSQLList(qry).Rows[0];
             Registration registration = new Registration();
             //return new Registration
             //{               
-            registration.UserId = Convert.ToInt32(row["UserId"]);
-            registration.UserName = row["UserName"].ToString();
-            registration.Email = row["Email"].ToString();
+            registration.UserID = Convert.ToInt32(row["UserId"]);
+            registration.Username = row["UserName"].ToString();
+            registration.DOB = Convert.ToDateTime(string.IsNullOrEmpty(row["DOB"].ToString()) ? "01-01-1111" : row["DOB"].ToString());
+            registration.Phone = ((row["Phone"]) ?? "").ToString();
+            registration.Email = row["EmailId"].ToString();
             registration.Password = row["Password"].ToString();
             registration.ResetPasswordCode = row["ResetPasswordCode"].ToString();
-            registration.DOB = Convert.ToDateTime(string.IsNullOrEmpty(row["DOB"].ToString()) ? "01-01-1111" : row["DOB"].ToString());
             //registration.DOB = Convert.ToDateTime(string.IsNullOrEmpty(row["DOB"].ToString())? DateTime.Now.ToString(): row["DOB"].ToString());
-            registration.Phone = ((row["Phone"]) ?? "").ToString();
             //};
 
             return registration;
         }
-*/
 
-        public void SaveUser(Registration register, string userid)
-        {
-            var dob = register.DOB.ToString("yyyy-MM-dd HH:mm");
-            string qry = string.Empty;
-            qry = "Update tblRegister set UserName = '" + register.Username + "', DOB = '" + dob +
-                    "', Phone= '" + register.Phone + "',EmailId= '" + register.Email + "' where UserID= " + userid;
-            this.AddUpdateDeleteSQL(qry);
-        }
         public void AddEvent(Events events, string userid)
         {
             string qry = string.Empty;

@@ -17,16 +17,16 @@ namespace EventReminderApp1.Controllers
     {
         // GET: User
         EventRepository eventRepository = new EventRepository();
-        const string Connectionstring = @"Data Source= LENOVO\SQLSERVER; Initial Catalog = dbwebapp; Integrated Security = True";
+        //const string Connectionstring = @"Data Source= LENOVO\SQLSERVER; Initial Catalog = dbwebapp; Integrated Security = True";
         // GET: User
         string resetid;
         public UserController()
         {
-             //Timer myTimer = new Timer();
-             //myTimer.Interval = 60000;
-             //myTimer.AutoReset = true;
-             //myTimer.Elapsed += new ElapsedEventHandler(SendMailToUser);
-             //myTimer.Enabled = true;
+            //Timer myTimer = new Timer();
+            //myTimer.Interval = 60000;
+            //myTimer.AutoReset = true;
+            //myTimer.Elapsed += new ElapsedEventHandler(SendMailToUser);
+            //myTimer.Enabled = true;
             //SendEmail("amithaunnikrishnan415@gmail.com", "Reminder", "hi");
         }
 
@@ -45,9 +45,36 @@ namespace EventReminderApp1.Controllers
         [HttpPost]
         public JsonResult Register(Registration register)
         {
-            eventRepository.UserRegister(register);
-            var status = true;
-            return new JsonResult { Data = new { status = status } };
+            string userid;
+            string mail;
+            string uname;
+
+            var status = false;
+            var dob = register.DOB.ToString("yyyy-MM-dd");
+            string query = "insert into tblRegister(UserName,DOB,Phone,EmailId,Password)" +
+                    " values('" + register.Username + "','" + dob + "','" + register.Phone + "','" + register.Email + "','" + register.Password + "')";
+            eventRepository.AddUpdateDeleteSQL(query);
+
+            List<string> variables = eventRepository.UserRegister(register);
+            if (variables.Count != 0)
+            {
+                userid = variables[0];
+                mail = variables[1];
+                uname = variables[2];
+
+
+                Session["UserID"] = userid;
+                Session["EmailId"] = mail;
+                Session["UserName"] = uname;
+                status = true;
+
+                return new JsonResult { Data = new { status = status, Username = uname } };
+            }
+            else
+            {
+                status = false;
+                return new JsonResult { Data = new { status = status } };
+            }
         }
         [HttpPost]
         public JsonResult Login(Registration login)
@@ -83,64 +110,77 @@ namespace EventReminderApp1.Controllers
         [HttpPost]
         public JsonResult GoogleLogin(string email, string name, string gender, string lastname, string location)
         {
+            /* var status = false;
+             using (SqlConnection con = new SqlConnection(Connectionstring))
+             {
+                 string qry;
+                 con.Open();
+                 string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
+                 SqlCommand cmd = new SqlCommand(query, con);
+                 cmd.CommandType = CommandType.Text;
+
+                 SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                 DataTable datatable = new DataTable();
+                 sda.Fill(datatable);
+                 if (datatable.Rows.Count == 1)
+                 {
+                     DataRow row = datatable.Rows[0];
+                     Session["UserID"] = row["UserID"].ToString();
+                     Session["EmailId"] = row["EmailId"].ToString();
+
+                     status = true;
+                 }
+                 else
+                 {
+                     qry = "insert into tblRegister(UserName,EmailId)" +
+                     " values('" + name + "','" + email + "')";
+                     eventRepository.AddUpdateDeleteSQL(qry);
+                     status = true;
+                 }
+             }
+             return new JsonResult { Data = new { status = status } };*/
+
             var status = false;
-            using (SqlConnection con = new SqlConnection(Connectionstring))
-            {
-                string qry;
-                con.Open();
-                string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.CommandType = CommandType.Text;
-
-                SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                DataTable datatable = new DataTable();
-                sda.Fill(datatable);
-                if (datatable.Rows.Count == 1)
-                {
-                    DataRow row = datatable.Rows[0];
-                    Session["UserID"] = row["UserID"].ToString();
-                    Session["EmailId"] = row["EmailId"].ToString();
-                    //Session["userid"] = uid;
-                    // Session["email"] = mail;
-
-                    status = true;
-                }
-                else
-                {
-                    qry = "insert into tblRegister(UserName,EmailId)" +
-                    " values('" + name + "','" + email + "')";
-                    eventRepository.AddUpdateDeleteSQL(qry);
-                    status = true;
-                }
-            }
-            return new JsonResult { Data = new { status = status } };
-            /*var status = false;
             string qry;
-            string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
-            List<string> variables = eventRepository.GoogleLoginDetails(query);
-            string userid = variables[0];
-            string mail = variables[1];
-
-            if (variables != null)
+            string query;
+            List<string> variables;
+            query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
+            variables = eventRepository.GoogleLoginDetails(query);
+            if(variables.Count != 0)
             {
+                string userid = variables[0];
+                string mail = variables[1];
+
                 Session["UserID"] = userid;
                 Session["EmailId"] = mail;
                 status = true;
             }
+             
             else
             {
-                qry = "insert into tblRegister(UserName,EmailId)" +
-                                    " values('" + name + "','" + email + "')";
-                eventRepository.AddUpdateDeleteSQL(qry);
+               qry = "insert into tblRegister(UserName,EmailId)" +
+                                     " values('" + name + "','" + email + "')";
+               eventRepository.AddUpdateDeleteSQL(qry);
+               query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
+               variables = eventRepository.GoogleLoginDetails(query);
+               if (variables.Count != 0)
+               {
+                   string userid = variables[0];
+                   string mail = variables[1];
+
+                   Session["UserID"] = userid;
+                   Session["EmailId"] = mail;
+               }
+
                 status = true;
             }
 
-            return new JsonResult { Data = new { status = status } };*/
+            return new JsonResult { Data = new { status = status } };
         }
 
         public JsonResult FacebookLogin(string email, string first_name)
         {
-              var status = false;
+            /*  var status = false;
               using (SqlConnection con = new SqlConnection(Connectionstring))
               {
                   string qry;
@@ -170,51 +210,67 @@ namespace EventReminderApp1.Controllers
                       status = true;
                   }
               }
-              return new JsonResult { Data = new { status = status } };
-            /* var status = false;
-             string qry;
-             string query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
-             if (Session["UserID"] != null)
-             {
-                 List<string> variables = eventRepository.GoogleLoginDetails(query);
-                 string userid = variables[0];
-                 string mail = variables[1];
+              return new JsonResult { Data = new { status = status } };*/
 
-                 if (variables != null)
-                 {
-                     Session["UserID"] = userid;
-                     Session["EmailId"] = mail;
-                     status = true;
-                 }
-                 else
-                 {
-                     status = false;
-                 }
-             }
-             else
-             {
-                 qry = "insert into tblRegister(UserName,EmailId)" +
+            var status = false;
+            string qry;
+            string query;
+            List<string> variables;
+            query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
+            variables = eventRepository.GoogleLoginDetails(query);
+            if (variables.Count != 0)
+            {
+                string userid = variables[0];
+                string mail = variables[1];
+
+                Session["UserID"] = userid;
+                Session["EmailId"] = mail;
+                status = true;
+            }
+            else
+            {
+                qry = "insert into tblRegister(UserName,EmailId)" +
                                      " values('" + first_name + "','" + email + "')";
-                 eventRepository.AddUpdateDeleteSQL(qry);
-                 status = true;
-             }
+                eventRepository.AddUpdateDeleteSQL(qry);
+                query = $"Select UserID,EmailId from tblRegister where EmailId='{email}' ";
+                variables = eventRepository.GoogleLoginDetails(query);
+                if (variables.Count != 0)
+                {
+                    string userid = variables[0];
+                    string mail = variables[1];
 
-             return new JsonResult { Data = new { status = status } };*/
+                    Session["UserID"] = userid;
+                    Session["EmailId"] = mail;
+                }
+                status = true;
+            }
+            return new JsonResult { Data = new { status = status } };
         }
         public JsonResult UserDetails()
         {
             string userid = Session["UserID"].ToString();
-            Registration register = eventRepository.GetUserDetails(userid);
+            string qry = "select * from tblRegister where UserID=" + userid;
+            Registration register = eventRepository.GetUserDetails(qry);
             return new JsonResult { Data = register, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
 
         }
         [HttpPost]
         public JsonResult SaveUserDetails(Registration register)
         {
+            var status = false;
             string userid = Session["UserID"].ToString();
-            eventRepository.SaveUser(register, userid);
-            var status = true;
-            return new JsonResult { Data = new { status = status } };
+            var dob = register.DOB.ToString("yyyy-MM-dd ");
+            string qry = string.Empty;
+            qry = "Update tblRegister set UserName = '" + register.Username + "', DOB = '" + dob +
+                    "', Phone= '" + register.Phone + "',EmailId= '" + register.Email + "' where UserID= " + userid;
+            int count = eventRepository.AddUpdateDeleteSQL(qry);
+            if(count == 1)
+            {
+               status = true;
+                Session["EmailId"] = register.Email;
+                Session["UserName"] = register.Username;
+            }
+            return new JsonResult { Data = new { status = status, Username = register.Username } };
         }
         public JsonResult GetEvents()
         {

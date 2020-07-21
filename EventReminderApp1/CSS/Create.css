@@ -96,3 +96,7 @@
     width: 75%;
     height: 60%;
 }
+.usernamelink:link {
+    color: white;
+    text-transform: capitalize;
+}

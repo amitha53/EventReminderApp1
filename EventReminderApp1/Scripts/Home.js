@@ -55,7 +55,7 @@ $(document).ready(function () {
         }
         var phone = $('#regphone').val();
             intRegex = /[0-9 -()+]+$/;
-        if ((phone.length < 6) || (!intRegex.test(phone))) {
+        if ((phone.length < 10) || (!intRegex.test(phone))) {
             alert('Please enter a valid phone number.');
             return false;
         }
@@ -102,6 +102,14 @@ $(document).ready(function () {
             success: function (data) {
                 if (data.status) {
                     alert("Registered Successfully");
+                    $('#modalLogin').css('display', 'none');
+                    $('#homepg').css('display', 'block');
+                    $('#btnlogout').css('display', 'block');
+                    $('#userDetails').css('display', 'block');
+                    $('#userWelcome').css('display', 'block');
+                    $('#user').text(data.Username);
+                    FetchEventAndRenderCalender();
+                    listEvents();
                 }
             },
             error: function () {
@@ -583,21 +591,19 @@ $(document).ready(function () {
                           alert('End date required');
                           return;
                       }
-                      var d1 = moment($('#calStart').val(), "DD-MM-YYYY HH:mm a", true);
-                      var d2 = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm a", true);
+                      var d1 = moment($('#listStart').val(), "DD-MM-YYYY HH:mm:ss", true);
+                      var d2 = moment($('#listEnd').val(), "DD-MM-YYYY HH:mm:ss", true);
                       console.log(d1.isValid());
                       if (d1.isValid() == false || d2.isValid() == false) {
                           alert("Invalid start or end date");
                           return;
                       }
 
-                      else {
-                          var startDate = moment($('#listStart').val(), "DD-MM-YYYY HH:mm a").toDate();
-                          var endDate = moment($('#listEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
-                          if (startDate >= endDate) {
+                      var startDate = moment($('#listStart').val(), "DD-MM-YYYY HH:mm a").toDate();
+                      var endDate = moment($('#listEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
+                      if (startDate >= endDate) {
                               alert('Start date should not be greater than End date!!!');
                               return;
-                          }
                       }
   
                       var data = {
@@ -660,14 +666,29 @@ $(document).ready(function () {
             alert('End date required');
             return;
         }
-        else {
-            var startDate = moment($('#crteStart').val(), "DD-MM-YYYY HH:mm a").toDate();
-            var endDate = moment($('#crteEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
-            if (startDate >= endDate) {
-                alert('Start date should not be greater than End date!!!');
+
+        var date1 = $('#crteStart').val();
+        var date2 = $('#crteEnd').val();   
+        if (new Date(date1).getDate() == new Date(date2).getDate()) {
+            if (new Date(date1).getTime() == new Date(date2).getTime()) {
+                alert('Start date should not be greater than or equal to end date');
                 return;
             }
         }
+        if (new Date(date1) > new Date(date2)) {
+            alert('Start date should not be greater than or equal to end date');
+            return;
+        }
+        //else {
+        //    var startDate = moment($('#crteStart').val(), "DD-MM-YYYY HH:mm a").toDate();
+        //    var endDate = moment($('#crteEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
+        //    alert(startDate);
+        //    alert(endDate);
+        //    if (startDate >= endDate) {
+        //        alert('Start date should not be greater than End date!!!');
+        //        return;
+        //    }
+        //}
 
         var createdata = {
             EventID: $('#crteEventID').val(),
@@ -716,6 +737,12 @@ $(document).ready(function () {
                         //  $('#modalLogin').modal();
                         $('#loginemail').val("");
                         $('#loginpass').val("");
+                        $('#reguserName').val("");
+                        $('#regdob').val("");
+                        $('#regphone').val("");
+                        $('#emailreg').val("");
+                        $('#regPass').val("");
+                        $('#regConfirmPass').val("");
                     }
                 },
                 error: function () {
@@ -795,15 +822,32 @@ $(document).ready(function () {
             alert('Username required');
             return;
         }
+        var d1 = moment($('#upDob').val(), "DD-MM-YYYY", true);
+        if (d1.isValid() == false) {
+            alert("Invalid Date of birth");
+            return;
+        }
         if ($('#upPhone').val().trim() == "") {
             alert('Phone number required');
             return;
         }
+        var phone = $('#upPhone').val();
+        intRegex = /[0-9 -()+]+$/;
+        if ((phone.length < 10) || (!intRegex.test(phone))) {
+            alert('Please enter a valid phone number.');
+            return false;
+        }
+
         if ($('#upEmail').val().trim() == "") {
             alert('Email required');
             return;
         }
-
+        var email = $('#upEmail').val();
+        var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        if (!regex.test(email)) {
+            alert('Invalid Email Address!!!');
+            return false;
+        }
         var edituserdata = {
            // UserID: $('#upUserID').val(),
             Username: $('#upUsername').val().trim(),
@@ -823,6 +867,7 @@ $(document).ready(function () {
                     alert("User Details saved successfully");
                     FetchEventAndRenderCalender();
                     listEvents();
+                    $('#user').text(data.Username);
                     $('#userProfile').modal('hide');
                 }
             },
