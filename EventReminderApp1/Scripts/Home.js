@@ -407,9 +407,22 @@ $(document).ready(function () {
                     StartDate: events.start.format("DD-MM-YYYY HH:mm a"),
                     EndDate: events.end.format("DD-MM-YYYY HH:mm a"),
                 };
-                SaveEvent(data);
+                var date = events.start;
+                var inpDate = new Date(date);
+                var currDate = new Date();
+                if (inpDate.setHours(0, 0, 0, 0) >= currDate.setHours(0, 0, 0, 0)) {
+                    SaveEvent(data);
+                }
+                else {
+                    if (confirm("The date entered is previous to present date") == true) {
+                        SaveEvent(data);
+                    }
+                    else {
+                        alert("Event cannot be created!!!");
+                    }
+                }
             }
-        })
+        });
     }
    
     /* --------Calendar edit-------------*/
@@ -444,30 +457,37 @@ $(document).ready(function () {
         }
         var d1 = moment($('#calStart').val(), "DD-MM-YYYY HH:mm", true);
         var d2 = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm", true);
-        console.log(d1.isValid());
         if (d1.isValid() == false || d2.isValid() == false) {
             alert("Invalid start or end date");
             return;
         }
-
-        else {
-            var startDate = moment($('#calStart').val(), "DD-MM-YYYY HH:mm a").toDate();
-            var endDate = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
-            if (startDate >= endDate) {
-                alert('Start date should not be greater than End date!!!');
-                return;
-            }
+        var startDate = moment($('#calStart').val(), "DD-MM-YYYY HH:mm a").toDate();
+        var endDate = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
+        if (startDate >= endDate) {
+            alert('Start date should not be greater than End date!!!');
+            return;
         }
-
+        var date = moment($('#calStart').val(), "DD-MM-YYYY HH:mm a").toDate();
+        var inpDate = new Date(date);
+        var currDate = new Date();
         var editdata = {
             EventID: $('#calEventID').val(),
-            //UserID: $('#hdUserID').val(),
             Subject: $('#calSubject').val().trim(),
             Description: $('#calDescription').val(),
             StartDate: $('#calStart').val(),
             EndDate: $('#calEnd').val()
         }
-        SaveEvent(editdata);
+        if (inpDate.setHours(0, 0, 0, 0) >= currDate.setHours(0, 0, 0, 0)) {
+            SaveEvent(editdata);
+        }
+        else {
+            if (confirm("The date entered is previous to present date") == true) {
+                SaveEvent(editdata);
+            }
+            else {
+                alert("Event cannot be created!!!");
+            }
+        }
     });
     function SaveEvent(editdata) {
         $.ajax({
@@ -605,7 +625,6 @@ $(document).ready(function () {
                               alert('Start date should not be greater than End date!!!');
                               return;
                       }
-  
                       var data = {
                           EventID: $('#listEventID').val(),
                           Subject: $('#listSubject').val().trim(),
@@ -613,7 +632,20 @@ $(document).ready(function () {
                           StartDate: $('#listStart').val(),
                           EndDate: $('#listEnd').val()
                       }
-                      SaveEvent(data);
+                      var date = moment($('#listStart').val(), "DD-MM-YYYY HH:mm a").toDate();
+                      var inpDate = new Date(date);
+                      var currDate = new Date();
+                      if (inpDate.setHours(0, 0, 0, 0) >= currDate.setHours(0, 0, 0, 0)) {
+                          SaveEvent(data);
+                      }
+                      else {
+                          if (confirm("The date entered is previous to present date") == true) {
+                              SaveEvent(data);
+                          }
+                          else {
+                              alert("Event cannot be created!!!");
+                          }
+                      }
                   });
                   function SaveEvent(data) {
                       $.ajax({
@@ -679,17 +711,10 @@ $(document).ready(function () {
             alert('Start date should not be greater than or equal to end date');
             return;
         }
-        //else {
-        //    var startDate = moment($('#crteStart').val(), "DD-MM-YYYY HH:mm a").toDate();
-        //    var endDate = moment($('#crteEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
-        //    alert(startDate);
-        //    alert(endDate);
-        //    if (startDate >= endDate) {
-        //        alert('Start date should not be greater than End date!!!');
-        //        return;
-        //    }
-        //}
 
+        var date = $('#crteStart').val()
+        var inpDate = new Date(date);
+        var currDate = new Date();
         var createdata = {
             EventID: $('#crteEventID').val(),
             Subject: $('#crteSubject').val().trim(),
@@ -697,7 +722,18 @@ $(document).ready(function () {
             StartDate: $('#crteStart').val(),
             EndDate: $('#crteEnd').val()
         }
-        CreateEvent(createdata);
+        if (inpDate.setHours(0, 0, 0, 0) >= currDate.setHours(0, 0, 0, 0)) {
+            CreateEvent(createdata);
+        }
+        else {
+            if (confirm("The date entered is previous to present date") == true) {
+                CreateEvent(createdata);
+            }
+            else {
+                alert("Event cannot be created!!!")
+            }
+        }
+        
     });
     function CreateEvent(createdata) {
         $.ajax({

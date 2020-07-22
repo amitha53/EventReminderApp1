@@ -86,10 +86,8 @@ namespace EventReminderApp1
                 DataRow row = datatable.Rows[0];
                 string userid = row["UserID"].ToString();
                 string mail = row["EmailId"].ToString();
-                string uname = row["UserName"].ToString();
                 variables.Add(userid);
                 variables.Add(mail);
-                variables.Add(uname);
             }
             con.Close();
             return variables;
