@@ -18,6 +18,7 @@ $(document).ready(function () {
     var user;
     var loggedIn = false;
 
+    var error = $('#error').val();
     $('#homepg').css('display', 'none');
     $('#btnlogout').css('display', 'none');
     $('#userDetails').css('display', 'none');
@@ -34,7 +35,7 @@ $(document).ready(function () {
         FetchEventAndRenderCalender();
         listEvents();
     }
-    /*-------------------------Login scripts-----------------------*/
+    /*-------------------------Registration scripts-----------------------*/
     $('#register-form-link').click(function () {
         $('#reguserName').val("");
         $('#regdob').val("");
@@ -44,30 +45,66 @@ $(document).ready(function () {
         $('#regConfirmPass').val("");
     });
 
+    function checkRequiredFeildValidation() {
+
+        if ($('#reguserName').val() == "") {
+            $('#errorUsername').text("Enter your Username");
+            $('#errorUsername').removeClass("not-error").addClass("error-show");
+        }
+
+        if ($('#emailreg').val() == "") {
+            $('#errorEmail').text("Enter your EmailID");
+            $('#errorEmail').removeClass("not-error").addClass("error-show");
+        }
+
+        if ($('#regPass').val() == "") {
+            $('#errorPassword').text("Enter your Password");
+            $('#errorPassword').removeClass("not-error").addClass("error-show");
+        }
+        else if ($('#regConfirmPass').val() == "") {
+            $('#errorConfirmPass').text("Enter your Password");
+            $('#errorConfirmPass').removeClass("not-error").addClass("error-show");
+        }
+    }
+    $("#regphone").change(function () {
+        var phone = $('#regphone').val();
+        intRegex = /[0-9 -()+]+$/;
+        if ((phone.length < 10) || (!intRegex.test(phone))) {
+            alert('Please enter a valid phone number.');
+            return false;
+        }
+    });
+
+    $("#emailreg").change(function () {
+        var email = $('#emailreg').val();
+        var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        if (!regex.test(email)) {
+            alert('Invalid Email Address!!!');
+            return false;
+        }
+    });
+
+    $("#regConfirmPass").change(function () {
+        var password = $("#regPass").val();
+        var confirmPassword = $("#regConfirmPass").val();
+        if (password != confirmPassword) {
+            alert("Passwords do not match!!!");
+            return false;
+        }
+    });
+
     $('#registersubmit').click(function () {
         if ($('#reguserName').val().trim() == "") {
-            alert('Enter your UserName');
+            alert("Enter your Username");
             return;
         }
         if ($('#regphone').val().trim() == "") {
             alert('Enter your Phone');
             return;
         }
-        var phone = $('#regphone').val();
-            intRegex = /[0-9 -()+]+$/;
-        if ((phone.length < 10) || (!intRegex.test(phone))) {
-            alert('Please enter a valid phone number.');
-            return false;
-        }
         if ($('#emailreg').val().trim() == "") {
             alert('Enter your EmailID');
             return;
-        }
-        var email = $('#emailreg').val();
-        var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-        if (!regex.test(email)) {
-            alert('Invalid Email Address!!!');
-            return false;
         }
         if ($('#regPass').val().trim() == "") {
             alert('Enter your Password');
@@ -76,12 +113,6 @@ $(document).ready(function () {
         if ($('#regConfirmPass').val().trim() == "") {
             alert('Re-Enter your Password');
             return;
-        }
-        var password = $("#regPass").val();
-        var confirmPassword = $("#regConfirmPass").val();
-        if (password != confirmPassword) {
-            alert("Passwords do not match!!!");
-            return false;
         }
         var regdata = {
             //UserID: $('#reguserId').val(),
@@ -111,23 +142,29 @@ $(document).ready(function () {
                     FetchEventAndRenderCalender();
                     listEvents();
                 }
+                else {
+                    alert("Register Unsuccessfull!!! Email Id already exist!!!");
+                }
             },
             error: function () {
                 alert('Failed');
             }
         });
     }
-
-    $('#loginsubmit').click(function () {
-        if ($('#loginemail').val().trim() == "") {
-            alert('Enter your EmailID');
-            return;
-        }
+/*-------------------------Login scripts-----------------------*/
+    $("#loginemail").change(function () {
         var email = $('#loginemail').val();
         var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
         if (!regex.test(email)) {
             alert('Invalid Email Address!!!');
             return false;
+        }
+    });
+
+    $('#loginsubmit').click(function () {
+        if ($('#loginemail').val().trim() == "") {
+            alert('Enter your EmailID');
+            return;
         }
 
         if ($('#loginpass').val().trim() == "") {
@@ -400,6 +437,9 @@ $(document).ready(function () {
             },
             editable: true,
             eventDrop: function (events) {
+                var date = events.start;
+                var inpDate = new Date(date);
+                var currDate = new Date();
                 var data = {
                     EventID: events.eventID,
                     Subject: events.title,
@@ -407,9 +447,6 @@ $(document).ready(function () {
                     StartDate: events.start.format("DD-MM-YYYY HH:mm a"),
                     EndDate: events.end.format("DD-MM-YYYY HH:mm a"),
                 };
-                var date = events.start;
-                var inpDate = new Date(date);
-                var currDate = new Date();
                 if (inpDate.setHours(0, 0, 0, 0) >= currDate.setHours(0, 0, 0, 0)) {
                     SaveEvent(data);
                 }
@@ -442,6 +479,20 @@ $(document).ready(function () {
         $('#ModalEdit').modal();
     }
 
+    $("#calEnd").change(function () {
+        var d1 = moment($('#calStart').val(), "DD-MM-YYYY HH:mm", true);
+        var d2 = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm", true);
+        if (d1.isValid() == false || d2.isValid() == false) {
+            alert("Invalid start or end date");
+            return;
+        }
+        var startDate = moment($('#calStart').val(), "DD-MM-YYYY HH:mm a").toDate();
+        var endDate = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
+        if (startDate >= endDate) {
+            alert('Start date should not be greater than End date!!!');
+            return;
+        }
+    });
     $('#btnSave').click(function () {
         if ($('#calSubject').val().trim() == "") {
             alert('Subject required');
@@ -453,18 +504,6 @@ $(document).ready(function () {
         }
         if ($('#calEnd').val().trim() == "") {
             alert('End date required');
-            return;
-        }
-        var d1 = moment($('#calStart').val(), "DD-MM-YYYY HH:mm", true);
-        var d2 = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm", true);
-        if (d1.isValid() == false || d2.isValid() == false) {
-            alert("Invalid start or end date");
-            return;
-        }
-        var startDate = moment($('#calStart').val(), "DD-MM-YYYY HH:mm a").toDate();
-        var endDate = moment($('#calEnd').val(), "DD-MM-YYYY HH:mm a").toDate();
-        if (startDate >= endDate) {
-            alert('Start date should not be greater than End date!!!');
             return;
         }
         var date = moment($('#calStart').val(), "DD-MM-YYYY HH:mm a").toDate();
@@ -684,7 +723,21 @@ $(document).ready(function () {
         $('#crteEnd').val("");
         $('#ModalCreate').modal();
     }
+    $("#crteEnd").change(function () {
+        var date1 = $('#crteStart').val();
+        var date2 = $('#crteEnd').val();
+        if (new Date(date1).getDate() == new Date(date2).getDate()) {
+            if (new Date(date1).getTime() == new Date(date2).getTime()) {
+                alert('Start date should not be greater than or equal to end date');
+                return;
+            }
+        }
+        if (new Date(date1) > new Date(date2)) {
+            alert('Start date should not be greater than or equal to end date');
+            return;
+        }
 
+    });
     $('#createBtnSubmit').click(function () {
         if ($('#crteSubject').val().trim() == "") {
             alert('Subject required');
@@ -696,19 +749,6 @@ $(document).ready(function () {
         }
         if ($('#crteEnd').val().trim() == "") {
             alert('End date required');
-            return;
-        }
-
-        var date1 = $('#crteStart').val();
-        var date2 = $('#crteEnd').val();   
-        if (new Date(date1).getDate() == new Date(date2).getDate()) {
-            if (new Date(date1).getTime() == new Date(date2).getTime()) {
-                alert('Start date should not be greater than or equal to end date');
-                return;
-            }
-        }
-        if (new Date(date1) > new Date(date2)) {
-            alert('Start date should not be greater than or equal to end date');
             return;
         }
 
@@ -853,20 +893,7 @@ $(document).ready(function () {
         });
     }
 
-    $('#btnUserSave').click(function () {
-        if ($('#upUsername').val().trim() == "") {
-            alert('Username required');
-            return;
-        }
-        var d1 = moment($('#upDob').val(), "DD-MM-YYYY", true);
-        if (d1.isValid() == false) {
-            alert("Invalid Date of birth");
-            return;
-        }
-        if ($('#upPhone').val().trim() == "") {
-            alert('Phone number required');
-            return;
-        }
+    $("#upPhone").change(function () {
         var phone = $('#upPhone').val();
         intRegex = /[0-9 -()+]+$/;
         if ((phone.length < 10) || (!intRegex.test(phone))) {
@@ -874,18 +901,40 @@ $(document).ready(function () {
             return false;
         }
 
-        if ($('#upEmail').val().trim() == "") {
-            alert('Email required');
+    });
+
+    $("#upDob").change(function () {
+        var d1 = moment($('#upDob').val(), "DD-MM-YYYY", true);
+        if (d1.isValid() == false) {
+            alert("Invalid Date of birth");
             return;
         }
+    });
+
+    $("#upEmail").change(function () {
         var email = $('#upEmail').val();
         var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
         if (!regex.test(email)) {
             alert('Invalid Email Address!!!');
             return false;
         }
+    });
+
+    $('#btnUserSave').click(function () {
+        if ($('#upUsername').val().trim() == "") {
+            alert('Username required');
+            return;
+        }
+        if ($('#upPhone').val().trim() == "") {
+            alert('Phone number required');
+            return;
+        }
+        if ($('#upEmail').val().trim() == "") {
+            alert('Email required');
+            return;
+        }
         var edituserdata = {
-           // UserID: $('#upUserID').val(),
+            // UserID: $('#upUserID').val(),
             Username: $('#upUsername').val().trim(),
             DOB: $('#upDob').val(),
             Phone: $('#upPhone').val(),

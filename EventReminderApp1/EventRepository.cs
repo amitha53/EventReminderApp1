@@ -41,11 +41,10 @@ namespace EventReminderApp1
             return variables;
 
         }
-        public List<string> LoginDetails(Registration login)
+        public List<string> LoginDetails(string query, Registration login)
         {
             List<string> variables = new List<string>();
             con.Open();
-            string query = "Select UserID,EmailId,UserName,Password From tblRegister Where EmailId=@EmailId and Password=@Password";
             SqlCommand cmd = new SqlCommand(query, con);
             cmd.CommandType = CommandType.Text;
             cmd.Parameters.AddWithValue("@EmailId", login.Email);
@@ -228,9 +227,11 @@ namespace EventReminderApp1
                 {
                     Events events = new Events();
                     events.Email = row["EmailId"].ToString();
+                    events.EventID = Convert.ToInt32(row["EventID"]);
                     events.StartDate = Convert.ToDateTime(row["StartDate"]);
                     events.Subject = row["Subject"].ToString();
                     events.Description = row["Description"].ToString();
+                    events.MailSend = row["MailSend"].ToString();
                     mailDetails.Add(events);
                 }
             }

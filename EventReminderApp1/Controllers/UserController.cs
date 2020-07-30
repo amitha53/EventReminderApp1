@@ -22,11 +22,11 @@ namespace EventReminderApp1.Controllers
         string resetid;
         public UserController()
         {
-            //Timer myTimer = new Timer();
-            //myTimer.Interval = 60000;
-            //myTimer.AutoReset = true;
-            //myTimer.Elapsed += new ElapsedEventHandler(SendMailToUser);
-            //myTimer.Enabled = true;
+            Timer myTimer = new Timer();
+            myTimer.Interval = 60000;
+            myTimer.AutoReset = true;
+            myTimer.Elapsed += new ElapsedEventHandler(SendMailToUser);
+            myTimer.Enabled = true;
             //SendEmail("amithaunnikrishnan415@gmail.com", "Reminder", "hi");
         }
 
@@ -51,30 +51,30 @@ namespace EventReminderApp1.Controllers
 
             var status = false;
             var dob = register.DOB.ToString("yyyy-MM-dd");
-            string query = "insert into tblRegister(UserName,DOB,Phone,EmailId,Password)" +
-                    " values('" + register.Username + "','" + dob + "','" + register.Phone + "','" + register.Email + "','" + register.Password + "')";
-            eventRepository.AddUpdateDeleteSQL(query);
-
-            List<string> variables = eventRepository.UserRegister(register);
-            if (variables.Count != 0)
+            string qry = "Select UserID,EmailId,UserName,Password From tblRegister Where EmailId=@EmailId";
+            List<string> var = eventRepository.LoginDetails(qry,register);
+            if (var.Count == 0)
             {
-                userid = variables[0];
-                mail = variables[1];
-                uname = variables[2];
+                string query = "insert into tblRegister(UserName,DOB,Phone,EmailId,Password)" +
+                                   " values('" + register.Username + "','" + dob + "','" + register.Phone + "','" + register.Email + "','" + register.Password + "')";
+                eventRepository.AddUpdateDeleteSQL(query);
+                List<string> variables = eventRepository.UserRegister(register);
+                if (variables.Count != 0)
+                {
+                    userid = variables[0];
+                    mail = variables[1];
+                    uname = variables[2];
 
+                    Session["UserID"] = userid;
+                    Session["EmailId"] = mail;
+                    Session["UserName"] = uname;
+                    status = true;
 
-                Session["UserID"] = userid;
-                Session["EmailId"] = mail;
-                Session["UserName"] = uname;
-                status = true;
-
-                return new JsonResult { Data = new { status = status, Username = uname } };
+                    return new JsonResult { Data = new { status = status, Username = uname } };
+                }
             }
-            else
-            {
-                status = false;
-                return new JsonResult { Data = new { status = status } };
-            }
+            return new JsonResult { Data = new { status = status } };
+           
         }
         [HttpPost]
         public JsonResult Login(Registration login)
@@ -84,8 +84,8 @@ namespace EventReminderApp1.Controllers
             string uname;
 
             var status = false;
-
-            List<string> variables = eventRepository.LoginDetails(login);
+            string query = "Select UserID,EmailId,UserName,Password From tblRegister Where EmailId=@EmailId and Password=@Password";
+            List<string> variables = eventRepository.LoginDetails(query,login);
             if (variables.Count != 0)
             {
                 userid = variables[0];
@@ -327,14 +327,18 @@ namespace EventReminderApp1.Controllers
 
             var currentDate = DateTime.Now;
             var eventDate = currentDate.AddMinutes(+5).ToString("yyyy-MM-dd HH:mm");
-            string qry = $"Select EmailId,StartDate,Subject,Description from tblRegister join tblEvents on (tblRegister.UserID=tblEvents.UserID) where StartDate='{eventDate}' ";
+            string qry = $"Select EmailId,EventID,StartDate,Subject,Description,MailSend from tblRegister join tblEvents on (tblRegister.UserID=tblEvents.UserID) where StartDate='{eventDate}' ";
             List<Events> mailDetails = eventRepository.GetMailDetails(qry);
             foreach (Events item in mailDetails)
             {
-                string ebody = "<p>Hi,<br />This is a reminder of the following event-<br />Event:" + item.Subject + "<br />" + "Description:" + item.Description + "<br />" + "Time:" + item.StartDate + "</ p > ";
-                status = SendEmail(item.Email, "EventReminderApp1", ebody);
+                if (item.MailSend != "true")
+                {
+                    string ebody = "<p>Hi,<br />This is a reminder of the following event-<br />Event:" + item.Subject + "<br />" + "Description:" + item.Description + "<br />" + "Time:" + item.StartDate + "</ p > ";
+                    string query = $"Update tblEvents set MailSend='true' where EventID={item.EventID}";
+                    int count = eventRepository.AddUpdateDeleteSQL(query);
+                    status = SendEmail(item.Email, "EventReminderApp1", ebody);
+                }
             }
-
         }
 
         public bool SendEmail(string toEmail, string subject, string emailBody)
